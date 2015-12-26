@@ -45,8 +45,17 @@ public class GridManager : MonoBehaviour
     {
         hexWidth = Hex.GetComponent<Renderer>().bounds.size.x;
         hexHeight = Hex.GetComponent<Renderer>().bounds.size.z;
-        groundWidth = Ground.GetComponent<Renderer>().bounds.size.x;
-        groundHeight = Ground.GetComponent<Renderer>().bounds.size.z;
+        var terrainComponent = Ground.GetComponent<Terrain>();
+        if (terrainComponent != null)
+        {
+            groundWidth = terrainComponent.terrainData.size.x;
+            groundHeight = terrainComponent.terrainData.size.z;
+        }
+        else
+        {
+            groundWidth = Ground.GetComponent<Renderer>().bounds.size.x;
+            groundHeight = Ground.GetComponent<Renderer>().bounds.size.z;
+        }
     }
 
     //The method used to calculate the number hexagons in a row and number of rows

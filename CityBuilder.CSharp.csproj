@@ -71,6 +71,7 @@
     <Compile Include="Assets\CharacterMovement.cs" />
     <Compile Include="Assets\CivCamera.cs" />
     <Compile Include="Assets\GridManager.cs" />
+    <Compile Include="Assets\TextureSplatPainter.cs" />
     <Compile Include="Assets\Village.cs" />
     <Compile Include="Assets\model\GridObject.cs" />
     <Compile Include="Assets\model\IHasNeighbours.cs" />
