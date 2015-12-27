@@ -31,8 +31,16 @@ public class GridManager : MonoBehaviour
 
     public static GridManager instance = null;
 
-    private float hexWidth;
-    private float hexHeight;
+    public float hexWidth
+    {
+        get;
+        private set;
+    }
+    public float hexHeight
+    {
+        get;
+        private set;
+    }
     private float groundWidth;
     private float groundHeight;
 
@@ -79,7 +87,7 @@ public class GridManager : MonoBehaviour
 
     //Method to calculate the position of the first hexagon tile
     //The center of the hex grid is (0,0,0)
-    Vector3 calcInitPos()
+    public Vector3 calcInitPos()
     {
         Vector3 initPos;
         initPos = new Vector3(-groundWidth / 2 + hexWidth / 2, 0,
@@ -264,6 +272,8 @@ public class GridManager : MonoBehaviour
     {
         setSizes();
         createGrid();
+
+        Ground.GetComponent<TextureSplatPainter>().Paint(board);
 
         GameObject PC = (GameObject)Instantiate(Settler);
         PC.GetComponent<CharacterMovement>().setPos(new Vector2(0, 0));
