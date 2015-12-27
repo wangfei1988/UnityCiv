@@ -43,6 +43,7 @@ public class GridManager : MonoBehaviour
     }
     private float groundWidth;
     private float groundHeight;
+    private Vector2 gridSize;
 
     void Awake()
     {
@@ -163,7 +164,7 @@ public class GridManager : MonoBehaviour
 
     void createGrid()
     {
-        Vector2 gridSize = calcGridSize();
+        gridSize = calcGridSize();
         GameObject hexGridGO = new GameObject("HexGrid");
 
         for (float y = 0; y < gridSize.y; y++)
@@ -283,7 +284,7 @@ public class GridManager : MonoBehaviour
         setSizes();
         createGrid();
 
-        Ground.GetComponent<LevelCreator>().Create(board);
+        Ground.GetComponent<LevelCreator>().Create(board, gridSize);
         Ground.GetComponent<TextureSplatPainter>().Paint(board);
 
         GameObject PC = (GameObject)Instantiate(Settler);

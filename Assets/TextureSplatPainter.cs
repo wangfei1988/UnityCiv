@@ -71,8 +71,10 @@ public class TextureSplatPainter : MonoBehaviour {
                 {
                     if (tile1 != null)
                         map[x, y, (int)tile1.Type] = 1;
-                    else
+                    else if (tile2 != null)
                         map[x, y, (int)tile2.Type] = 1;
+                    else
+                        map[x, y, (int)Tile.TerrainType.GRASS] = 1;
                 }
             }
         }
@@ -98,16 +100,16 @@ public class TextureSplatPainter : MonoBehaviour {
         if (x_diff > y_diff && x_diff > z_diff)
         {
             rx = -ry - rz;
-            rx2 = rx;
+            rx2 = -ry2 - rz2;
         }
         else if (y_diff > z_diff)
         {
             ry = -rx - rz;
-            ry2 = ry;
+            ry2 = -rx2 -rz2;
         }
         else {
             rz = -rx - ry;
-            rz2 = rz;
+            rz2 = -rx2 -ry2;
         }
 
         return new[] { new Vector3((float)rx, (float)ry, (float)rz),

@@ -12,16 +12,18 @@ public class Tile : GridObject, IHasNeighbours<Tile>
 
     public enum TerrainType
     {
+        DRYEARTH,
+        DRYGRASS,
+        REDSTONE,
         GRASS,
-        DIRT,
-        WHATEVER,
-        YEAH
+        UNASSIGNED = 99
     }
 
     public Tile(int x, int y)
         : base(x, y)
     {
         Passable = true;
+        Type = TerrainType.UNASSIGNED;
     }
 
     public GameObject Representation { get; set; }

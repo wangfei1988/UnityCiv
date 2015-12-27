@@ -73,6 +73,7 @@
     <Compile Include="Assets\GridManager.cs" />
     <Compile Include="Assets\TextureSplatPainter.cs" />
     <Compile Include="Assets\Village.cs" />
+    <Compile Include="Assets\model\Extensions.cs" />
     <Compile Include="Assets\model\GridObject.cs" />
     <Compile Include="Assets\model\IHasNeighbours.cs" />
     <Compile Include="Assets\model\LevelCreator.cs" />
