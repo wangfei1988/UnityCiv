@@ -75,6 +75,7 @@
     <Compile Include="Assets\Village.cs" />
     <Compile Include="Assets\model\GridObject.cs" />
     <Compile Include="Assets\model\IHasNeighbours.cs" />
+    <Compile Include="Assets\model\LevelCreator.cs" />
     <Compile Include="Assets\model\Path.cs" />
     <Compile Include="Assets\model\PathFinder.cs" />
     <Compile Include="Assets\model\Point.cs" />

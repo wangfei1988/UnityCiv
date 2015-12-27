@@ -114,18 +114,17 @@ public class GridManager : MonoBehaviour
         Vector3 initPos = calcInitPos();
 
         float y = -(float)(worldPos.z - initPos.z) / (hexHeight * 0.75f);
-        float x = (worldPos.x - initPos.x) / hexWidth - y/2; // - y / 2
-        //col = x + (z - (z & 1)) / 2             + (y - ((int)y & 1)) / 2
-        //row = z
+        float x = (worldPos.x - initPos.x) / hexWidth - y/2;
         return hex_round(new Vector2(x, y));
     }
 
-    Vector2 hex_round(Vector2 h)
+    public Vector2 hex_round(Vector2 h)
     {
         return cube_to_hex(cube_round(hex_to_cube(h)));
     }
 
-    Vector3 cube_round(Vector3 cubeInput) {
+    // See http://www.redblobgames.com/grids/hexagons/#rounding
+    public Vector3 cube_round(Vector3 cubeInput) {
         var rx = Math.Round(cubeInput.x);
         var ry = Math.Round(cubeInput.y);
         var rz = Math.Round(cubeInput.z);
@@ -134,6 +133,7 @@ public class GridManager : MonoBehaviour
         var y_diff = Math.Abs(ry - cubeInput.y);
         var z_diff = Math.Abs(rz - cubeInput.z);
 
+        //reset largest rounding change
         if (x_diff > y_diff && x_diff > z_diff) {
             rx = -ry - rz;
         } else if (y_diff > z_diff) {
@@ -145,12 +145,18 @@ public class GridManager : MonoBehaviour
         return new Vector3((float)rx, (float)ry, (float)rz);
     }
 
-    Vector2 cube_to_hex(Vector3 h)
+    // ranges from 0 to 1
+    public float cube_distance(Vector3 a, Vector3 b)
+    {
+        return (Math.Abs(a.x - b.x) + Math.Abs(a.y - b.y) + Math.Abs(a.z - b.z)) / 2;
+    }
+
+    public Vector2 cube_to_hex(Vector3 h)
     {
         return new Vector2(h.x, h.z);
     }
 
-    Vector3 hex_to_cube(Vector2 h)
+    public Vector3 hex_to_cube(Vector2 h)
     {
         return new Vector3(h.x, -h.x - h.y, h.y);
     }
@@ -240,6 +246,9 @@ public class GridManager : MonoBehaviour
         return null;
     }
 
+
+    private Color hex_default_color = new Color(1, 1, 1, 85f/255f);
+
     // Update is called once per frame
     void Update()
     {
@@ -250,10 +259,11 @@ public class GridManager : MonoBehaviour
         if (Ground.GetComponent<Collider>().Raycast(ray, out hit, 100f))
         {
             var coord = calcGridCoord(hit.point);
-            Debug.Log(coord);
-            if (selectedTile != null) selectedTile.Representation.GetComponent<SpriteRenderer>().color = Color.white;
-            if (board.TryGetValue(new Point((int)coord.x, (int)coord.y), out selectedTile))
+            Tile newSelectedTile;
+            if (board.TryGetValue(new Point((int)coord.x, (int)coord.y), out newSelectedTile))
             {
+                if (selectedTile != null && selectedTile != newSelectedTile) selectedTile.Representation.GetComponent<SpriteRenderer>().color = hex_default_color;
+                selectedTile = newSelectedTile;
                 selectedTile.Representation.GetComponent<SpriteRenderer>().color = Color.red;
                 if (Input.GetMouseButtonDown(1))
                 {
@@ -273,6 +283,7 @@ public class GridManager : MonoBehaviour
         setSizes();
         createGrid();
 
+        Ground.GetComponent<LevelCreator>().Create(board);
         Ground.GetComponent<TextureSplatPainter>().Paint(board);
 
         GameObject PC = (GameObject)Instantiate(Settler);

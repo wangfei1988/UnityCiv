@@ -8,6 +8,15 @@ using UnityEngine;
 public class Tile : GridObject, IHasNeighbours<Tile>
 {
     public bool Passable;
+    public TerrainType Type;
+
+    public enum TerrainType
+    {
+        GRASS,
+        DIRT,
+        WHATEVER,
+        YEAH
+    }
 
     public Tile(int x, int y)
         : base(x, y)
