@@ -5,6 +5,9 @@ using System.Linq;
 using System;
 
 public class LevelCreator : MonoBehaviour {
+    
+    public GameObject Settler;
+    private float treePlacementTolerance = 0.01f;
 
 	public void Create(Dictionary<Point, Tile> board, Vector2 gridSize)
     {
@@ -33,7 +36,7 @@ public class LevelCreator : MonoBehaviour {
         {
             if (tile.Type == Tile.TerrainType.UNASSIGNED)
             {
-                var tilecenter = gm.calcWorldCoord(new Vector2(tile.Location.X, tile.Location.Y));
+                var tilecenter = gm.calcWorldCoord(new Vector2(tile.Location.X + tile.Location.Y / 2, tile.Location.Y));
 
                 var surroundingTypes = tile.Neighbours.Select(tl => tl.Type).ToArray();
 
@@ -50,21 +53,7 @@ public class LevelCreator : MonoBehaviour {
                     {
                         tile.Type = Tile.TerrainType.DRYGRASS;
 
-                        var amountOfTresOnTile = rnd.Next(2, 4);
-                        float r = Math.Min(gm.hexWidth, gm.hexHeight) / 2;
-                        for (int i = 0; i < amountOfTresOnTile; i++)
-                        {
-                            var rot = rnd.NextDouble() * 2 * Math.PI;
-
-                            TreeInstance ti = new TreeInstance();
-                            ti.prototypeIndex = 0;
-                            ti.heightScale = 0.02f;
-                            ti.widthScale = 0.02f;
-                            ti.color = Color.white;
-                            //ti.position = new Vector3((tilecenter.x - worldpos.x + (float)Math.Cos(rot) * r) / terrainSize.x, 0.0f, (tilecenter.z - worldpos.z + (float)Math.Sin(rot) * r) / terrainSize.z);
-                            ti.position = new Vector3((tilecenter.x - worldpos.x) / terrainSize.x, 0, (tilecenter.z - worldpos.z) / terrainSize.z);
-                            t.AddTreeInstance(ti);
-                        }
+                        PlaceTreesOnTile(gm, rnd, t, worldpos, terrainSize, tilecenter);
                     }
                     else
                     {
@@ -74,6 +63,8 @@ public class LevelCreator : MonoBehaviour {
             }
         }
 
+        Debug.Log("Tree x min max:" + t.terrainData.treeInstances.Min(ti => ti.position.x) + " " + t.terrainData.treeInstances.Max(ti => ti.position.x));
+        Debug.Log("Tree z min max:" + t.terrainData.treeInstances.Min(ti => ti.position.z) + " " + t.terrainData.treeInstances.Max(ti => ti.position.z));
 
         // Like this: Iterate through every row
         /*for (int y = 0; y < gridSize.y; y++)
@@ -95,5 +86,63 @@ public class LevelCreator : MonoBehaviour {
         {
             throw new UnassignedReferenceException(amountUnassigned + " tiles have no type assigned!");
         }
+
+        CreateSettler();
+    }
+
+    private void PlaceTreesOnTile(GridManager gm, System.Random rnd, Terrain t, Vector3 worldpos, Vector3 terrainSize, Vector3 tilecenter)
+    {
+        var amountOfTreesOnTile = rnd.Next(9, 14);
+        float r = Math.Min(gm.hexWidth, gm.hexHeight) / 2;
+        List<float[]> existingOffsets = new List<float[]>();
+        for (int i = 0; i < amountOfTreesOnTile; i++)
+        {
+            // find a place to plant the tree
+            float xoffset = -99;
+            float zoffset = -99;
+            for (int placeTry = 0; placeTry < 10; placeTry++)
+            {
+                var rot = rnd.NextDouble() * 2 * Math.PI;
+                float dist = (float)rnd.NextDouble() * r;
+                var xo = (float)Math.Cos(rot) * dist;
+                var zo = (float)Math.Sin(rot) * dist;
+                // if there's not a tree already
+                if (!existingOffsets.Any(e => (e[0] - xo) * (e[0] - xo) + (e[1] - zo) * (e[1] - zo) <= treePlacementTolerance))
+                {
+                    xoffset = xo;
+                    zoffset = zo;
+                    break;
+                }
+            }
+            // no suitable tree position found
+            if (xoffset == -99)
+            {
+                Debug.Log("aborted");
+                break;
+            }
+
+            TreeInstance ti = new TreeInstance();
+            ti.prototypeIndex = 0;
+            ti.heightScale = 0.02f;
+            ti.widthScale = 0.02f;
+            ti.color = Color.white;
+            ti.position = new Vector3((tilecenter.x - worldpos.x + xoffset) / terrainSize.x, 0, (tilecenter.z - worldpos.z + zoffset) / terrainSize.z);
+            //ti.position = new Vector3((tilecenter.x - worldpos.x) / terrainSize.x, 0, (tilecenter.z - worldpos.z) / terrainSize.z);
+            if (ti.position.x < 0)
+            {
+                Debug.Log(tilecenter.x + " " + worldpos.x);
+            }
+            //Debug.Log("Tree: " + ti.position.x + " " + ti.position.z);
+            existingOffsets.Add(new float[] { xoffset, zoffset });
+            t.AddTreeInstance(ti);
+        }
+    }
+
+    private void CreateSettler()
+    {
+        GameObject PC = Instantiate(Settler);
+        var cm = PC.GetComponent<CharacterMovement>();
+        cm.setPos(new Vector2(25, 25));
+        //GridManager.instance.selectedUnit = PC;
     }
 }

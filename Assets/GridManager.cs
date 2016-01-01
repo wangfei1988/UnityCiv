@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System;
+using System.Linq;
 
 /// <summary>
 /// Hex coming from:
@@ -26,8 +27,9 @@ public class GridManager : MonoBehaviour
     //List to hold "Lines" indicating the path
     List<GameObject> path;
 
-    public GameObject Settler;
-    private GameObject selectedUnit = null;
+    public GameObject selectedUnit = null;
+    public List<GameObject> allUnits = new List<GameObject>();
+    public List<GameObject> allBuildings = new List<GameObject>();
 
     public static GridManager instance = null;
 
@@ -97,6 +99,11 @@ public class GridManager : MonoBehaviour
         return initPos;
     }
 
+    /// <summary>
+    /// calcs world coord from wiggly axis points. If you have straight axis coordinate system, remember to add x+=y/2
+    /// </summary>
+    /// <param name="gridPos"></param>
+    /// <returns></returns>
     public Vector3 calcWorldCoord(Vector2 gridPos)
     {
         Vector3 initPos = calcInitPos();
@@ -268,16 +275,27 @@ public class GridManager : MonoBehaviour
                 selectedTile.Representation.GetComponent<SpriteRenderer>().color = Color.red;
                 if (Input.GetMouseButtonDown(1))
                 {
-                    selectedUnit.GetComponent<CharacterMovement>().MoveTo(coord);
+                    if (selectedUnit != null) selectedUnit.GetComponent<CharacterMovement>().MoveTo(coord);
+                }
+                // does the user want to select something?
+                else if (Input.GetMouseButtonDown(0))
+                {
+                    //get all units from that tile
+                    var unitsOnTile = allUnits.Where(u => u.GetComponent<CharacterMovement>().curTile == selectedTile).ToArray();
+                    if (unitsOnTile.Count() > 0)
+                    {
+                        //TODO
+                        unitsOnTile.First().GetComponent<IGameUnit>().Select();
+                    }
                 }
             }
             else
             {
-                Debug.Log("out of range");
+                //Debug.Log("out of range");
             }
         }
-
     }
+
 
     void Start()
     {
@@ -286,9 +304,5 @@ public class GridManager : MonoBehaviour
 
         Ground.GetComponent<LevelCreator>().Create(board, gridSize);
         Ground.GetComponent<TextureSplatPainter>().Paint(board);
-
-        GameObject PC = (GameObject)Instantiate(Settler);
-        PC.GetComponent<CharacterMovement>().setPos(new Vector2(0, 0));
-        selectedUnit = PC;
     }
 }
