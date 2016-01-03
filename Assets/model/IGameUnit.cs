@@ -26,7 +26,7 @@ public abstract class IGameUnit : IEntity {
     /// </summary>
     public void RemoveCharacter()
     {
-        Destroy(this.gameObject);
+        Destroy(gameObject);
         if (GridManager.instance.selectedUnit == gameObject)
         {
             GridManager.instance.selectedUnit = null;

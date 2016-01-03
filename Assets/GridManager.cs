@@ -28,6 +28,7 @@ public class GridManager : MonoBehaviour
     List<GameObject> path;
 
     public GameObject selectedUnit = null;
+    public GameObject selectedBuilding = null;
     public List<GameObject> allUnits = new List<GameObject>();
     public List<GameObject> allBuildings = new List<GameObject>();
 
@@ -281,11 +282,11 @@ public class GridManager : MonoBehaviour
                 else if (Input.GetMouseButtonDown(0))
                 {
                     //get all units from that tile
-                    var unitsOnTile = allUnits.Where(u => u.GetComponent<CharacterMovement>().curTile == selectedTile).ToArray();
-                    if (unitsOnTile.Count() > 0)
+                    var entitiesOnTile = allUnits.Where(u => u.GetComponent<CharacterMovement>().curTile == selectedTile);
+                    entitiesOnTile = entitiesOnTile.Union(allBuildings.Where(b => b.GetComponent<IGameBuilding>().Location == selectedTile));
+                    if (entitiesOnTile.Count() > 0)
                     {
-                        //TODO
-                        unitsOnTile.First().GetComponent<IGameUnit>().Select();
+                        entitiesOnTile.First().GetComponent<IEntity>().Select();
                     }
                 }
             }
@@ -304,5 +305,12 @@ public class GridManager : MonoBehaviour
 
         Ground.GetComponent<LevelCreator>().Create(board, gridSize);
         Ground.GetComponent<TextureSplatPainter>().Paint(board);
+    }
+
+    public void Spawn(GameObject entity, Vector2 position)
+    {
+        GameObject PC = Instantiate(entity);
+        var cm = PC.GetComponent<CharacterMovement>();
+        cm.setPos(position);
     }
 }

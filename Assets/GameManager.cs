@@ -1,8 +1,11 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour {
+
+    public List<BuildItem> AllBuildItems;
 
     public List<BuildItem> AvailableBuildItems
     {
@@ -15,10 +18,6 @@ public class GameManager : MonoBehaviour {
     void Awake()
     {
         instance = this;
-
-        AvailableBuildItems = new List<BuildItem>()
-        {
-            new BuildItem(null, "build worker", 5, 250)
-        };
+        AvailableBuildItems = new List<BuildItem>(AllBuildItems);
     }
 }

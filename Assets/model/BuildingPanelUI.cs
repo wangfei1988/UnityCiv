@@ -1,29 +1,46 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 public class BuildingPanelUI : MonoBehaviour
 {
     public static BuildingPanelUI instance = null;
 
     public RectTransform buildPanelContainer;
-    public Graphic buildItemTemplate;
+    public GameObject buildItemTemplate;
 
     // Use this for initialization
     void Start ()
     {
         instance = this;
         //gameObject.SetActive(false);
-        buildItemTemplate.GetComponent<RectTransform>().SetParent(null);
-
-        SetBuildItems(new BuildItem[] { null, null, null, null, null, null, null, null, null, null });
     }
 
-    public void SetBuildItems(BuildItem[] items)
+    public void SetBuildItems(BuildItem[] items, int ProductionOutput)
     {
         if (items != null)
         {
-            float rectHeight = buildItemTemplate.GetComponent<RectTransform>().rect.height;
+            foreach (Transform child in buildPanelContainer.transform)
+            {
+                Destroy(child.gameObject);
+            }
+
+            gameObject.SetActive(true);
+
+            foreach (var item in items)
+            {
+                GameObject newItem = Instantiate<GameObject>(buildItemTemplate);
+                BuildingItemPrefab newItem_vals = newItem.GetComponent<BuildingItemPrefab>();
+                newItem_vals.title.text = item.Title;
+                newItem_vals.icon.sprite = item.Image;
+                newItem_vals.turns.text = ((int)item.ProductionCosts / ProductionOutput) + " Turns";
+                newItem_vals.button.onClick.AddListener(new UnityEngine.Events.UnityAction(() => SelectItem(item)));
+                newItem.transform.SetParent(buildPanelContainer);
+            }
+
+            /*float rectHeight = buildItemTemplate.GetComponent<RectTransform>().rect.height;
 
             gameObject.SetActive(true);
             for (int i = 0; i < 10; i++)
@@ -36,7 +53,7 @@ public class BuildingPanelUI : MonoBehaviour
                 var sdlk = 5;
             }
             buildPanelContainer.offsetMin = new Vector2(0, -items.Length * rectHeight);
-            /*for (int btn = 0; btn < buttons.Length; btn++)
+            for (int btn = 0; btn < buttons.Length; btn++)
             {
                 // the button will be used
                 if (btn < infos.Length)
@@ -55,6 +72,15 @@ public class BuildingPanelUI : MonoBehaviour
         else
         {
             gameObject.SetActive(false);
+        }
+    }
+
+    public void SelectItem(BuildItem item)
+    {
+        if (GridManager.instance.selectedBuilding != null)
+        {
+            IGameBuilding building = GridManager.instance.selectedBuilding.GetComponent<IGameBuilding>();
+            building.Produce(item);
         }
     }
 }

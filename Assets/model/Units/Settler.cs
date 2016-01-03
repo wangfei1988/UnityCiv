@@ -37,6 +37,7 @@ public class Settler : IGameUnit
             {
                 GameObject village = Instantiate(VillagePrefab);
                 village.transform.position = transform.position;
+                village.GetComponent<IGameBuilding>().Location = movement.curTile;
                 RemoveCharacter();
             }
         }
@@ -53,7 +54,6 @@ public class Settler : IGameUnit
 
     void Awake()
     {
-        this.gameObject.AddComponent<CharacterMovement>();
         movement = GetComponent<CharacterMovement>();
     }
 

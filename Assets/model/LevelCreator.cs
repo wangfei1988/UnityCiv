@@ -140,9 +140,6 @@ public class LevelCreator : MonoBehaviour {
 
     private void CreateSettler()
     {
-        GameObject PC = Instantiate(Settler);
-        var cm = PC.GetComponent<CharacterMovement>();
-        cm.setPos(new Vector2(25, 25));
-        //GridManager.instance.selectedUnit = PC;
+        GridManager.instance.Spawn(Settler, new Vector2(25, 25));
     }
 }

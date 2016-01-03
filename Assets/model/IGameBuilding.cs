@@ -3,11 +3,17 @@ using System.Collections;
 
 public abstract class IGameBuilding : IEntity
 {
+    public abstract Tile Location { get; set; }
 
     public abstract BuildItem[] Items
     {
         get;
         protected set;
+    }
+
+    public override void Select()
+    {
+        GridManager.instance.selectedBuilding = gameObject;
     }
 
     protected virtual void Start()
@@ -21,6 +27,13 @@ public abstract class IGameBuilding : IEntity
     public void RemoveBuilding()
     {
         Destroy(gameObject);
+        if (GridManager.instance.selectedBuilding == gameObject)
+        {
+            GridManager.instance.selectedBuilding = null;
+            BuildingPanelUI.instance.SetBuildItems(null, 0);
+        }
         GridManager.instance.allBuildings.Remove(gameObject);
     }
+
+    public abstract void Produce(BuildItem item);
 }
