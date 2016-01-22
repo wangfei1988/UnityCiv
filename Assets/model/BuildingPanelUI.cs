@@ -7,9 +7,11 @@ using UnityEngine.EventSystems;
 public class BuildingPanelUI : MonoBehaviour
 {
     public static BuildingPanelUI instance = null;
-
+    
     public RectTransform buildPanelContainer;
     public GameObject buildItemTemplate;
+    public Text currentlyBuildingTitle;
+    public Image currentlyBuildingIcon;
 
     // Use this for initialization
     void Start ()
@@ -40,34 +42,7 @@ public class BuildingPanelUI : MonoBehaviour
                 newItem.transform.SetParent(buildPanelContainer);
             }
 
-            /*float rectHeight = buildItemTemplate.GetComponent<RectTransform>().rect.height;
-
-            gameObject.SetActive(true);
-            for (int i = 0; i < 10; i++)
-            {
-                var bItem = Instantiate<Graphic>(buildItemTemplate);
-                var rect = bItem.GetComponent<RectTransform>();
-                rect.SetParent(buildPanelContainer);
-                //rect.anchoredPosition.Set(rect.anchoredPosition.x, rect.anchoredPosition.y + i * rect.rect.height);
-                rect.anchoredPosition = new Vector2(rect.anchoredPosition.x, rect.anchoredPosition.y - i * rectHeight);
-                var sdlk = 5;
-            }
-            buildPanelContainer.offsetMin = new Vector2(0, -items.Length * rectHeight);
-            for (int btn = 0; btn < buttons.Length; btn++)
-            {
-                // the button will be used
-                if (btn < infos.Length)
-                {
-                    var button = buttons[btn];
-                    button.gameObject.SetActive(true);
-                    var btnImg = (Image)button.targetGraphic;
-                    btnImg.sprite = infos[btn].image;
-                }
-                else
-                {
-                    buttons[btn].gameObject.SetActive(false);
-                }
-            }*/
+            SetCurrentlyBuilding();
         }
         else
         {
@@ -81,6 +56,26 @@ public class BuildingPanelUI : MonoBehaviour
         {
             IGameBuilding building = GridManager.instance.selectedBuilding.GetComponent<IGameBuilding>();
             building.Produce(item);
+            SetCurrentlyBuilding();
+        }
+    }
+
+    /// <summary>
+    /// Update the currently-producing-display with the selected building
+    /// </summary>
+    public void SetCurrentlyBuilding()
+    {
+        if (GridManager.instance.selectedBuilding != null)
+        {
+            IGameBuilding building = GridManager.instance.selectedBuilding.GetComponent<IGameBuilding>();
+            currentlyBuildingTitle.gameObject.SetActive(building.Producing != null);
+            currentlyBuildingIcon.gameObject.SetActive(building.Producing != null);
+
+            if (building.Producing != null)
+            {
+                currentlyBuildingIcon.sprite = building.Producing.Item.Image;
+                currentlyBuildingTitle.text = building.Producing.Item.Title.ToUpper() + " (" + ((building.Producing.Item.ProductionCosts - building.Producing.Produced) / building.ProductionOutput) + "Turns )";
+            }
         }
     }
 }

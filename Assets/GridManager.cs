@@ -281,12 +281,29 @@ public class GridManager : MonoBehaviour
                 // does the user want to select something?
                 else if (Input.GetMouseButtonDown(0))
                 {
+                    GameObject selected = null;
+
                     //get all units from that tile
                     var entitiesOnTile = allUnits.Where(u => u.GetComponent<CharacterMovement>().curTile == selectedTile);
                     entitiesOnTile = entitiesOnTile.Union(allBuildings.Where(b => b.GetComponent<IGameBuilding>().Location == selectedTile));
                     if (entitiesOnTile.Count() > 0)
                     {
+                        selected = entitiesOnTile.First();
                         entitiesOnTile.First().GetComponent<IEntity>().Select();
+                    }
+
+                    if (selected == null)
+                    {
+                        UnitPanelUI.instance.SetUnitPanelInfo(null);
+                        BuildingPanelUI.instance.SetBuildItems(null, 0);
+                    }
+                    else if (allBuildings.Contains(selected))
+                    {
+                        UnitPanelUI.instance.SetUnitPanelInfo(null);
+                    }
+                    else
+                    {
+                        BuildingPanelUI.instance.SetBuildItems(null, 0);
                     }
                 }
             }

@@ -32,7 +32,7 @@ public class TimeManager : MonoBehaviour
     {
         if (Round < 0)
         {
-            TimeLabel.text = Round + " BC";
+            TimeLabel.text = Round < 0 ? -Round + " BC" : Round + " AC";
         }
     }
 }

@@ -5,6 +5,14 @@ public abstract class IGameBuilding : IEntity
 {
     public abstract Tile Location { get; set; }
 
+    public abstract BuildOrder Producing
+    {
+        get;
+        protected set;
+    }
+
+    public abstract float ProductionOutput { get; protected set; }
+
     public abstract BuildItem[] Items
     {
         get;

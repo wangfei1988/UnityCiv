@@ -7,10 +7,10 @@ using UnityEngine.Events;
 
 public class Village : IGameBuilding
 {
-    public float ProductionOutput
+    public override float ProductionOutput
     {
         get;
-        private set;
+        protected set;
     }
 
     private UnityAction listener;
@@ -36,10 +36,10 @@ public class Village : IGameBuilding
         set;
     }
 
-    public BuildOrder Producing
+    public override BuildOrder Producing
     {
         get;
-        private set;
+        protected set;
     }
 
     public override void Produce(BuildItem item)
@@ -88,8 +88,13 @@ public class Village : IGameBuilding
                 if (movement != null)
                 {
                     GridManager.instance.Spawn(Producing.Item.Produces, new Vector2(Location.X + Location.Y/2, Location.Y));
+                    Producing = null;
                 }
             }
+
+            // update the building display if this building is currently selected
+            if (GridManager.instance.selectedBuilding == gameObject)
+                BuildingPanelUI.instance.SetCurrentlyBuilding();
         }
     }
 }
