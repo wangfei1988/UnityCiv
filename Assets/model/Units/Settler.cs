@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System;
+using System.Collections.Generic;
 
 public class Settler : IGameUnit
 {
@@ -29,16 +30,17 @@ public class Settler : IGameUnit
 
     protected CharacterMovement movement;
 
-    public override void UseAction(string action)
+    public override void UseAction(int action)
     {
         if (!movement.IsMoving)
         {
-            if (action == "Expand")
+            if (action == 0)
             {
                 GameObject village = Instantiate(VillagePrefab);
                 village.transform.position = transform.position;
                 village.GetComponent<IGameBuilding>().Location = movement.curTile;
                 RemoveCharacter();
+                LeaveAction(_settlementHexArea);
             }
         }
     }
@@ -57,8 +59,35 @@ public class Settler : IGameUnit
         movement = GetComponent<CharacterMovement>();
     }
 
+    void Update()
+    {
+        if (_settlementHexArea > -1 && _settlementHexAreaPos != movement.curTile)
+        {
+            GridManager.instance.DrawHexArea(_settlementHexAreaPos, 2, 0, Tile.TileColorPresets.WhiteTransparent);
+            HoverAction(_settlementHexArea);
+        }
+
+
+    }
+
     // Use this for initialization
     protected override void Start () {
         base.Start();
+    }
+
+    private int _settlementHexArea = -1;
+    private Tile _settlementHexAreaPos = null;
+
+    public override void HoverAction(int action)
+    {
+        GridManager.instance.DrawHexArea(movement.curTile, 2, 1, Tile.TileColorPresets.Area);
+        _settlementHexArea = action;
+        _settlementHexAreaPos = movement.curTile;
+    }
+
+    public override void LeaveAction(int action)
+    {
+        GridManager.instance.DrawHexArea(movement.curTile, 2, 0, Tile.TileColorPresets.WhiteTransparent);
+        _settlementHexArea = -1;
     }
 }

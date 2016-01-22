@@ -9,7 +9,11 @@ public abstract class IGameUnit : IEntity {
         protected set;
     }
 
-    public abstract void UseAction(string action);
+    public abstract void UseAction(int action);
+
+    public abstract void HoverAction(int action);
+
+    public abstract void LeaveAction(int action);
 
     public override void Select()
     {

@@ -6,13 +6,13 @@ public class UnitPanelUI : MonoBehaviour
 {
     public static UnitPanelUI instance = null;
     
-    private Button[] buttons;
+    public Button[] Buttons;
 
     void Awake()
     {
         instance = this;
         gameObject.SetActive(false);
-        buttons = GetComponentsInChildren<Button>();
+        Buttons = GetComponentsInChildren<Button>();
     }
 
     public class UnitInfo {
@@ -30,19 +30,19 @@ public class UnitPanelUI : MonoBehaviour
         if (infos != null)
         {
             gameObject.SetActive(true);
-            for (int btn = 0; btn < buttons.Length; btn++)
+            for (int btn = 0; btn < Buttons.Length; btn++)
             {
                 // the button will be used
                 if (btn < infos.Length)
                 {
-                    var button = buttons[btn];
+                    var button = Buttons[btn];
                     button.gameObject.SetActive(true);
                     var btnImg = (Image)button.targetGraphic;
                     btnImg.sprite = infos[btn].image;
                 }
                 else
                 {
-                    buttons[btn].gameObject.SetActive(false);
+                    Buttons[btn].gameObject.SetActive(false);
                 }
             }
         }
@@ -52,36 +52,28 @@ public class UnitPanelUI : MonoBehaviour
         }
     }
 
-    /*void OnGUI()
-    {
-        if (GridManager.instance.selectedUnit != null)
-        {
-            //gameObject.SetActive(true);
-            int buttoncount = 0;
-            foreach (var content in this.infos)
-            {
-                if (GUI.Button(new Rect((buttonWidth + 20) * buttoncount, 0, buttonWidth, buttonHeight), content, buttonStyle))
-                {
-                    //button was clicked
-                    var unit = GridManager.instance.selectedUnit.GetComponent<IGameUnit>();
-                    unit.UseAction(unit.Actions[buttoncount]);
-                }
-                buttoncount++;
-            }
-        }
-        else
-        {
-            //gameObject.SetActive(false);
-        }
-    }*/
-
+    /// <summary>
+    /// Linked in editor UI
+    /// </summary>
+    /// <param name="action"></param>
     public void UseUnitAction(int action)
     {
-        if (action == 0)
-        {
-            var unit = GridManager.instance.selectedUnit;
-            if (unit != null)
-                unit.GetComponent<IGameUnit>().UseAction("Expand");
-        }
+        var unit = GridManager.instance.selectedUnit;
+        if (unit != null)
+            unit.GetComponent<IGameUnit>().UseAction(action);
+    }
+
+    public void HoverUnitAction(int action)
+    {
+        var unit = GridManager.instance.selectedUnit;
+        if (unit != null)
+            unit.GetComponent<IGameUnit>().HoverAction(action);
+    }
+
+    public void LeaveUnitAction(int action)
+    {
+        var unit = GridManager.instance.selectedUnit;
+        if (unit != null)
+            unit.GetComponent<IGameUnit>().LeaveAction(action);
     }
 }

@@ -9,6 +9,7 @@ public class Tile : GridObject, IHasNeighbours<Tile>
 {
     public bool Passable;
     public TerrainType Type;
+    public static Sprite[] Sprites;
 
     public enum TerrainType
     {
@@ -76,4 +77,23 @@ public class Tile : GridObject, IHasNeighbours<Tile>
 
         AllNeighbours = neighbours;
     }
+
+    public void SetLooks(int sprite, TileColorPresets color)
+    {
+        var spr = Representation.GetComponent<SpriteRenderer>();
+        spr.sprite = Sprites[sprite];
+        spr.color = tileColors[(int)color];
+    }
+
+    public enum TileColorPresets
+    {
+        WhiteTransparent = 0,
+        Area = 1,
+    }
+
+    private List<Color> tileColors = new List<Color>()
+    {
+        new Color(1f, 1f, 1f, 0.3f),
+        new Color(0.7f, 0.3f, 0.4f, 0.3f)
+    };
 }

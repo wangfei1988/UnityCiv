@@ -16,6 +16,10 @@ public class GridManager : MonoBehaviour
     //This time instead of specifying the number of hexes you should just drop your ground game object on this public variable
     public GameObject Ground;
 
+    public GameObject LineRendererLine;
+
+    public Sprite[] tileSprites;
+
     //selectedTile stores the tile mouse cursor is hovering on
     public Tile selectedTile = null;
     //tile which is the start of the path
@@ -31,6 +35,9 @@ public class GridManager : MonoBehaviour
     public GameObject selectedBuilding = null;
     public List<GameObject> allUnits = new List<GameObject>();
     public List<GameObject> allBuildings = new List<GameObject>();
+
+    public List<RectTransform> uiElements = new List<RectTransform>();
+    public List<Vector3[]> worldCorners = new List<Vector3[]>();
 
     public static GridManager instance = null;
 
@@ -51,6 +58,7 @@ public class GridManager : MonoBehaviour
     void Awake()
     {
         instance = this;
+        Tile.Sprites = tileSprites;
     }
 
     void setSizes()
@@ -262,55 +270,60 @@ public class GridManager : MonoBehaviour
     void Update()
     {
 
-        //get mouse pos
-        var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        RaycastHit hit;
-        if (Ground.GetComponent<Collider>().Raycast(ray, out hit, 100f))
+        // if the mouse isn't hovering over the gui
+        if (!worldCorners.Any(wc => isMouseOverUI(wc, Input.mousePosition)))
         {
-            var coord = calcGridCoord(hit.point);
-            Tile newSelectedTile;
-            if (board.TryGetValue(new Point((int)coord.x, (int)coord.y), out newSelectedTile))
+            //get mouse pos
+            var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+            if (Ground.GetComponent<Collider>().Raycast(ray, out hit, 100f))
             {
-                if (selectedTile != null && selectedTile != newSelectedTile) selectedTile.Representation.GetComponent<SpriteRenderer>().color = hex_default_color;
-                selectedTile = newSelectedTile;
-                selectedTile.Representation.GetComponent<SpriteRenderer>().color = Color.red;
-                if (Input.GetMouseButtonDown(1))
+                var coord = calcGridCoord(hit.point);
+                Tile newSelectedTile;
+                if (board.TryGetValue(new Point((int)coord.x, (int)coord.y), out newSelectedTile))
                 {
-                    if (selectedUnit != null) selectedUnit.GetComponent<CharacterMovement>().MoveTo(coord);
+                    if (selectedTile != null && selectedTile != newSelectedTile) selectedTile.Representation.GetComponent<SpriteRenderer>().color = hex_default_color;
+                    selectedTile = newSelectedTile;
+                    selectedTile.Representation.GetComponent<SpriteRenderer>().color = Color.red;
+                    if (Input.GetMouseButtonDown(1))
+                    {
+                        if (selectedUnit != null) selectedUnit.GetComponent<CharacterMovement>().MoveTo(coord);
+                    }
+                    // does the user want to select something?
+                    else if (Input.GetMouseButtonDown(0))
+                    {
+                        GameObject selected = null;
+
+                        //get all units from that tile
+                        var entitiesOnTile = allUnits.Where(u => u.GetComponent<CharacterMovement>().curTile == selectedTile);
+                        entitiesOnTile = entitiesOnTile.Union(allBuildings.Where(b => b.GetComponent<IGameBuilding>().Location == selectedTile));
+                        if (entitiesOnTile.Count() > 0)
+                        {
+                            selected = entitiesOnTile.First();
+                            entitiesOnTile.First().GetComponent<IEntity>().Select();
+                        }
+
+                        if (selected == null)
+                        {
+                            UnitPanelUI.instance.SetUnitPanelInfo(null);
+                            BuildingPanelUI.instance.SetBuildItems(null, 0);
+                        }
+                        else if (allBuildings.Contains(selected))
+                        {
+                            UnitPanelUI.instance.SetUnitPanelInfo(null);
+                        }
+                        else
+                        {
+                            BuildingPanelUI.instance.SetBuildItems(null, 0);
+                        }
+                    }
                 }
-                // does the user want to select something?
-                else if (Input.GetMouseButtonDown(0))
+                else
                 {
-                    GameObject selected = null;
-
-                    //get all units from that tile
-                    var entitiesOnTile = allUnits.Where(u => u.GetComponent<CharacterMovement>().curTile == selectedTile);
-                    entitiesOnTile = entitiesOnTile.Union(allBuildings.Where(b => b.GetComponent<IGameBuilding>().Location == selectedTile));
-                    if (entitiesOnTile.Count() > 0)
-                    {
-                        selected = entitiesOnTile.First();
-                        entitiesOnTile.First().GetComponent<IEntity>().Select();
-                    }
-
-                    if (selected == null)
-                    {
-                        UnitPanelUI.instance.SetUnitPanelInfo(null);
-                        BuildingPanelUI.instance.SetBuildItems(null, 0);
-                    }
-                    else if (allBuildings.Contains(selected))
-                    {
-                        UnitPanelUI.instance.SetUnitPanelInfo(null);
-                    }
-                    else
-                    {
-                        BuildingPanelUI.instance.SetBuildItems(null, 0);
-                    }
+                    //Debug.Log("out of range");
                 }
             }
-            else
-            {
-                //Debug.Log("out of range");
-            }
+
         }
     }
 
@@ -319,6 +332,8 @@ public class GridManager : MonoBehaviour
     {
         setSizes();
         createGrid();
+        
+        worldCorners = uiElements.Select(uie => { Vector3[] wc = new Vector3[4];  uie.GetWorldCorners(wc); return wc; } ).ToList();
 
         Ground.GetComponent<LevelCreator>().Create(board, gridSize);
         Ground.GetComponent<TextureSplatPainter>().Paint(board);
@@ -329,5 +344,42 @@ public class GridManager : MonoBehaviour
         GameObject PC = Instantiate(entity);
         var cm = PC.GetComponent<CharacterMovement>();
         cm.setPos(position);
+    }
+
+    public GameObject DrawHexLine(Vector3[] edgepoints)
+    {
+        GameObject line = Instantiate(LineRendererLine);
+        var lineComp = line.GetComponent<LineRenderer>();
+        lineComp.SetPositions(edgepoints);
+        return line;
+    }
+
+    public List<Tile> DrawHexArea(Tile center, int distance, int sprite, Tile.TileColorPresets color)
+    {
+        List<Tile> results = new List<Tile>();
+        var cubecenter = hex_to_cube(new Vector2(center.X, center.Y));
+        for (int dx = -distance; dx <= distance; dx++)
+            for (int dy = Math.Max(-distance, -dx - distance); dy <= Math.Min(distance, -dx + distance); dy++)
+            {
+                var dz = -dx - dy;
+                var pos = cube_to_hex(new Vector3(cubecenter.x + dx, cubecenter.y + dy, cubecenter.z + dz));
+                Tile tile;
+                if (board.TryGetValue(new Point((int)(pos.x + 0.1), (int)(pos.y + 0.1)), out tile))
+                {
+                    results.Add(tile);
+                    tile.SetLooks(sprite, color);
+                }
+            }
+        return results;
+    }
+
+    private bool isMouseOverUI(Vector3[] worldCorners, Vector2 mousePosition)
+    {
+        if (mousePosition.x >= worldCorners[0].x && mousePosition.x < worldCorners[2].x
+           && mousePosition.y >= worldCorners[0].y && mousePosition.y < worldCorners[2].y)
+        {
+            return true;
+        }
+        return false;
     }
 }
