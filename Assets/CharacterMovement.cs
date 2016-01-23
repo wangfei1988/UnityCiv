@@ -5,6 +5,36 @@ using System.Linq;
 
 public class CharacterMovement : MonoBehaviour
 {
+    private float _maxpoints = 0;
+    public float MovementPointsMax
+    {
+        get
+        {
+            return _maxpoints;
+        }
+        set
+        {
+            _maxpoints = value;
+            MovementPointsRemaining = (int)value;
+        }
+    }
+
+    public int MovementPointsRemaining
+    {
+        get;
+        private set;
+    }
+
+    public bool ExpendMovementPoints(int points)
+    {
+        if (!IsMoving && MovementPointsRemaining >= points)
+        {
+            MovementPointsRemaining -= points;
+            return true;
+        }
+        return false;
+    }
+
     //speed in meters per second
     private float speed = 0.025f;
     //distance between character and tile position when we assume we reached it and start looking for the next. Explained in detail later on
@@ -52,18 +82,7 @@ public class CharacterMovement : MonoBehaviour
         }
     }
 
-    //gets tile position in world space
-    /*Vector3 calcTilePos(Tile tile)
-    {
-        //y / 2 is added to convert coordinates from straight axis coordinate system to squiggly axis system
-        Vector2 tileGridPos = new Vector2(tile.X + tile.Y / 2, tile.Y);
-        Vector3 tilePos = GridManager.instance.calcWorldCoord(tileGridPos);
-        //y coordinate is disregarded
-        tilePos.y = myTransform.position.y;
-        return tilePos;
-    }*/
-
-    public void MoveTo(Vector2 dest)
+    public bool MoveTo(Vector2 dest)
     {
         if (!IsMoving)
         {
@@ -72,8 +91,13 @@ public class CharacterMovement : MonoBehaviour
             /*Debug.Log("Moving from: " + curTile.Location.X + "," + curTile.Location.Y);
             Debug.Log("To: " + dest);
             Debug.Log("Via: " + String.Join(" | ", pathlist.Select(t => t.X + "," + t.Y).ToArray()));*/
-            StartMoving(pathlist);
+            if (ExpendMovementPoints(pathlist.Count - 1))
+            {
+                StartMoving(pathlist);
+                return true;
+            }
         }
+        return false;
     }
 
     //method argument is a list of tiles we got from the path finding algorithm
@@ -157,5 +181,64 @@ public class CharacterMovement : MonoBehaviour
     private Vector3 getWorld(Tile t)
     {
         return GridManager.instance.calcWorldCoord(new Vector2(t.X + t.Y / 2, t.Y));
+    }
+
+    void OnEnable()
+    {
+        EventManager.StartListening("NextRound", nextRoundListener);
+    }
+
+    void OnDisable()
+    {
+        EventManager.StopListening("NextRound", nextRoundListener);
+    }
+
+    private void nextRoundListener()
+    {
+        MovementPointsRemaining = (int)MovementPointsMax;
+    }
+
+    private static List<GameObject> suggestedMovePathLineObjects = new List<GameObject>();
+    private static Color thisRoundMoveColor = new Color(0.31f, 0.27f, 0.1f, 1);
+    private static Color nextRoundsMoveColor = new Color(0.65f, 0.65f, 0.65f, 1);
+
+    internal void SuggestMove(Vector3 dest)
+    {
+        if (!IsMoving)
+        {
+            var pathlist = new List<Tile>(GridManager.instance.generatePath(new Vector2(curTile.X, curTile.Y), dest));
+            pathlist.Reverse();
+            DrawPath(pathlist);
+        }
+    }
+
+    private void DrawPath(List<Tile> pathlist)
+    {
+        for (int t = 0; t < pathlist.Count; t++)
+        {
+            var tile = pathlist[t];
+            GameObject point = null;
+            if (suggestedMovePathLineObjects.Count > t)
+                point = suggestedMovePathLineObjects[t];
+            else
+            {
+                point = Instantiate(GridManager.instance.MovementLineObject);
+                suggestedMovePathLineObjects.Add(point);
+            }
+            point.transform.position = GridManager.instance.calcWorldCoord(new Vector2(tile.X + tile.Y / 2, tile.Y));
+            // TODO: assuming every tile movement costs 1 points
+            point.GetComponent<MeshRenderer>().material.color = MovementPointsRemaining - t >= 0 ? thisRoundMoveColor : nextRoundsMoveColor;
+            point.SetActive(true);
+            // TODO: display a number for each movement point used on tile
+        }
+
+        // hide the rest of the (still visible) spheres
+        if (suggestedMovePathLineObjects.Count > pathlist.Count)
+        {
+            for (int s = pathlist.Count; s < suggestedMovePathLineObjects.Count; s++)
+            {
+                suggestedMovePathLineObjects[s].SetActive(false);
+            }
+        }
     }
 }

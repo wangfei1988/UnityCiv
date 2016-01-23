@@ -16,7 +16,7 @@ public class GridManager : MonoBehaviour
     //This time instead of specifying the number of hexes you should just drop your ground game object on this public variable
     public GameObject Ground;
 
-    public GameObject LineRendererLine;
+    public GameObject MovementLineObject;
 
     public Sprite[] tileSprites;
 
@@ -285,7 +285,12 @@ public class GridManager : MonoBehaviour
                     if (selectedTile != null && selectedTile != newSelectedTile) selectedTile.Representation.GetComponent<SpriteRenderer>().color = hex_default_color;
                     selectedTile = newSelectedTile;
                     selectedTile.Representation.GetComponent<SpriteRenderer>().color = Color.red;
-                    if (Input.GetMouseButtonDown(1))
+                    if (Input.GetMouseButton(1))
+                    {
+                        if (selectedUnit != null) selectedUnit.GetComponent<CharacterMovement>().SuggestMove(coord);
+                    }
+                    // the user wants to move there
+                    else if (Input.GetMouseButtonUp(1))
                     {
                         if (selectedUnit != null) selectedUnit.GetComponent<CharacterMovement>().MoveTo(coord);
                     }
@@ -346,13 +351,13 @@ public class GridManager : MonoBehaviour
         cm.setPos(position);
     }
 
-    public GameObject DrawHexLine(Vector3[] edgepoints)
+    /*public GameObject DrawHexLine(Vector3[] edgepoints)
     {
         GameObject line = Instantiate(LineRendererLine);
         var lineComp = line.GetComponent<LineRenderer>();
         lineComp.SetPositions(edgepoints);
         return line;
-    }
+    }*/
 
     public List<Tile> DrawHexArea(Tile center, int distance, int sprite, Tile.TileColorPresets color)
     {

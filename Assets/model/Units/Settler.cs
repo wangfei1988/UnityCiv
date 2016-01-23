@@ -32,9 +32,9 @@ public class Settler : IGameUnit
 
     public override void UseAction(int action)
     {
-        if (!movement.IsMoving)
+        if (action == 0)
         {
-            if (action == 0)
+            if (movement.ExpendMovementPoints(2))
             {
                 GameObject village = Instantiate(VillagePrefab);
                 village.transform.position = transform.position;
@@ -57,6 +57,7 @@ public class Settler : IGameUnit
     void Awake()
     {
         movement = GetComponent<CharacterMovement>();
+        movement.MovementPointsMax = 2;
     }
 
     void Update()
@@ -66,8 +67,6 @@ public class Settler : IGameUnit
             GridManager.instance.DrawHexArea(_settlementHexAreaPos, 2, 0, Tile.TileColorPresets.WhiteTransparent);
             HoverAction(_settlementHexArea);
         }
-
-
     }
 
     // Use this for initialization
