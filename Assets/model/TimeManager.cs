@@ -20,22 +20,28 @@ public class TimeManager : MonoBehaviour
         private set;
     }
 
+    public static TimeManager instance = null;
+
     private DateTime nextRoundStartsAt = DateTime.MaxValue;
+    
+    // TODO: Gather event handles from "PerformingAction", continue with round if all of them completed.
+
 
     void Awake()
     {
+        instance = this;
         Round = -4000;
     }
     
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Return))
+        if (Input.GetKeyDown(KeyCode.Return) && nextRoundStartsAt == DateTime.MaxValue)
         {
             nextRoundStartsAt = DateTime.Now.AddSeconds(1);
             EventManager.TriggerEvent("NextRoundRequest");
         }
 
-        if (nextRoundStartsAt != null && nextRoundStartsAt <= DateTime.Now)
+        if (nextRoundStartsAt <= DateTime.Now)
         {
             nextRoundStartsAt = DateTime.MaxValue;
             Round++;
@@ -50,7 +56,11 @@ public class TimeManager : MonoBehaviour
     /// </summary>
     public void PerformingAction()
     {
-
+        /*if (nextRoundStartsAt != DateTime.MaxValue)
+        {
+            var newStartPoint = DateTime.Now.AddMilliseconds(miliseconds);
+            nextRoundStartsAt = newStartPoint > nextRoundStartsAt ? newStartPoint : nextRoundStartsAt;
+        }*/
     }
 
     /// <summary>
@@ -58,7 +68,7 @@ public class TimeManager : MonoBehaviour
     /// </summary>
     public void DenyNextRoundRequest()
     {
-
+        nextRoundStartsAt = DateTime.MaxValue;
     }
 
     private void DisplayTime()

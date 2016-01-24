@@ -53,7 +53,7 @@ public class CharacterMovement : MonoBehaviour
     List<Tile> path;
     public bool IsMoving { get; private set; }
 
-    public List<Tile> Path
+    public List<Tile> RemainingPath
     {
         get;
         private set;
@@ -81,6 +81,7 @@ public class CharacterMovement : MonoBehaviour
             curTile = cTile;
             curTilePos = GridManager.instance.calcWorldCoord(pos);
             gameObject.transform.position = curTilePos;
+            RemainingPath = new List<Tile>() { curTile };
         }
         else
         {
@@ -95,37 +96,37 @@ public class CharacterMovement : MonoBehaviour
             var GM = GridManager.instance;
             var pathlist = new List<Tile>(GM.generatePath(new Vector2(curTile.X, curTile.Y), dest));
             pathlist.Reverse();
-            /*Debug.Log("Moving from: " + curTile.Location.X + "," + curTile.Location.Y);
-            Debug.Log("To: " + dest);
-            Debug.Log("Via: " + String.Join(" | ", pathlist.Select(t => t.X + "," + t.Y).ToArray()));*/
+
             // TODO: Assuming 1 tile = 1 movement
-            Path = pathlist;
-            if (MovementPointsRemaining > 0) {
-                var movement = Math.Min(MovementPointsRemaining, pathlist.Count - 1);
-                var pathNow = pathlist.Take(movement + 1).ToList();
-                Path = pathlist.Skip(movement).ToList();
-                ExpendMovementPoints(movement);
-                pathNow.Reverse();
-                StartMoving(pathNow);
-            }
+            RemainingPath = pathlist;
+            StartMoving();
             return true;
         }
         return false;
     }
 
     //method argument is a list of tiles we got from the path finding algorithm
-    void StartMoving(List<Tile> path)
+    void StartMoving()
     {
-        if (path.Count == 0)
-            return;
-        //the first tile we need to reach is actually in the end of the list just before the one the character is currently on
-        curTile = path[path.Count - 2];
-        curTilePos = getWorld(curTile);
-        // Rotate towards the target
-        transform.rotation = Quaternion.LookRotation(curTilePos - transform.position);
+        if (MovementPointsRemaining > 0)
+        {
+            var movement = Math.Min(MovementPointsRemaining, RemainingPath.Count - 1);
+            var path = RemainingPath.Take(movement + 1).ToList();
+            RemainingPath = RemainingPath.Skip(movement).ToList();
+            ExpendMovementPoints(movement);
+            path.Reverse();
 
-        IsMoving = true;
-        this.path = path;
+            if (path.Count == 0)
+                return;
+            //the first tile we need to reach is actually in the end of the list just before the one the character is currently on
+            curTile = path[path.Count - 2];
+            curTilePos = getWorld(curTile);
+            // Rotate towards the target
+            transform.rotation = Quaternion.LookRotation(curTilePos - transform.position);
+
+            IsMoving = true;
+            this.path = path;
+        }
     }
 
     void Update()
@@ -135,6 +136,15 @@ public class CharacterMovement : MonoBehaviour
         //if the distance between the character and the center of the next tile is short enough
         if ((curTilePos - transform.position).sqrMagnitude < MinNextTileDist * MinNextTileDist)
         {
+            // Remove the way marker for the current tile
+            if (GridManager.instance.selectedUnit == gameObject && suggestedMovePathLineObjects[0].activeSelf)
+            {
+                var removeWayPoint = suggestedMovePathLineObjects[0];
+                removeWayPoint.SetActive(false);
+                suggestedMovePathLineObjects = suggestedMovePathLineObjects.Skip(1).ToList();
+                suggestedMovePathLineObjects.Add(removeWayPoint);
+            }
+
             //if we reached the destination tile
             if (path.IndexOf(curTile) == 0)
             {
@@ -155,6 +165,7 @@ public class CharacterMovement : MonoBehaviour
 
     void MoveTowards(Vector3 position)
     {
+        //TODO: depends on fps..
         //mevement direction
         Vector3 dir = position - transform.position;
         if (dir.sqrMagnitude > speed * speed)
@@ -171,8 +182,8 @@ public class CharacterMovement : MonoBehaviour
         forwardDir *= speedModifier;*/
 
         //var idlehash = Animator.StringToHash("idle");
-        Vector3 forwardDir = transform.forward;
-        forwardDir = forwardDir * speed;
+        //Vector3 forwardDir = transform.forward;
+        //forwardDir = forwardDir * speed;
 
         //var positionstr = position.ToString("F5");
         //var transformdir = transform.position.ToString("F5");
@@ -197,11 +208,29 @@ public class CharacterMovement : MonoBehaviour
     void OnEnable()
     {
         EventManager.StartListening("NextRound", nextRoundListener);
+        EventManager.StartListening("NextRoundRequest", nextRoundRequestListener);
     }
 
     void OnDisable()
     {
         EventManager.StopListening("NextRound", nextRoundListener);
+        EventManager.StopListening("NextRoundRequest", nextRoundRequestListener);
+    }
+
+    private void nextRoundRequestListener()
+    {
+        // perform remaining movement
+        if (MovementPointsRemaining > 0 && RemainingPath.Count > 1)
+        {
+            int movements = Math.Min(MovementPointsRemaining, RemainingPath.Count - 1);
+            var allWorldPos = RemainingPath.Take(movements + 1).Select(p => GridManager.instance.calcWorldCoord(new Vector2(p.X + p.Y/2, p.Y))).ToArray();
+            double totalDist = 0;
+            for (int i = 1; i < allWorldPos.Count(); i++)
+                totalDist += (allWorldPos[i - 1] - allWorldPos[i]).magnitude;
+            double timeForMovement = totalDist / speed * 60; // 60 fps
+            TimeManager.instance.PerformingAction(timeForMovement);
+            StartMoving();
+        }
     }
 
     private void nextRoundListener()
