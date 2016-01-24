@@ -10,6 +10,8 @@ public class Settler : IGameUnit
 
     public Sprite icon_expand;
 
+    public AudioClip ExpandAudioClip;
+
     private static String[] actions = new String[]
     {
         "Expand"
@@ -40,6 +42,7 @@ public class Settler : IGameUnit
                 village.transform.position = transform.position;
                 village.GetComponent<IGameBuilding>().Location = movement.curTile;
                 RemoveCharacter();
+                audioSource.PlayOneShot(ExpandAudioClip, 1f);
                 LeaveAction(_settlementHexArea);
             }
         }
@@ -54,8 +57,9 @@ public class Settler : IGameUnit
         });
     }
 
-    void Awake()
+    protected override void Awake()
     {
+        base.Awake();
         movement = GetComponent<CharacterMovement>();
         movement.MovementPointsMax = 2;
     }

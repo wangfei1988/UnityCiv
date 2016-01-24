@@ -60,8 +60,9 @@ public class Village : IGameBuilding
         buildItems.Add(GameManager.instance.AvailableBuildItems.First());
     }
 
-    void Awake()
+    protected override void Awake()
     {
+        base.Awake();
         listener = new UnityAction(NextRound);
         ProductionOutput = 10;
     }

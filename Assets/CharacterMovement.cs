@@ -53,6 +53,12 @@ public class CharacterMovement : MonoBehaviour
     List<Tile> path;
     public bool IsMoving { get; private set; }
 
+    public List<Tile> Path
+    {
+        get;
+        private set;
+    }
+
     private Animator anim;
 
     void Awake()
@@ -88,14 +94,21 @@ public class CharacterMovement : MonoBehaviour
         {
             var GM = GridManager.instance;
             var pathlist = new List<Tile>(GM.generatePath(new Vector2(curTile.X, curTile.Y), dest));
+            pathlist.Reverse();
             /*Debug.Log("Moving from: " + curTile.Location.X + "," + curTile.Location.Y);
             Debug.Log("To: " + dest);
             Debug.Log("Via: " + String.Join(" | ", pathlist.Select(t => t.X + "," + t.Y).ToArray()));*/
-            if (ExpendMovementPoints(pathlist.Count - 1))
-            {
-                StartMoving(pathlist);
-                return true;
+            // TODO: Assuming 1 tile = 1 movement
+            Path = pathlist;
+            if (MovementPointsRemaining > 0) {
+                var movement = Math.Min(MovementPointsRemaining, pathlist.Count - 1);
+                var pathNow = pathlist.Take(movement + 1).ToList();
+                Path = pathlist.Skip(movement).ToList();
+                ExpendMovementPoints(movement);
+                pathNow.Reverse();
+                StartMoving(pathNow);
             }
+            return true;
         }
         return false;
     }
@@ -174,8 +187,6 @@ public class CharacterMovement : MonoBehaviour
         else {
             anim.Play("idle", -1);
         }
-        /*if (!GetComponent<Animation>()["HumanoidIdle"].enabled)
-            GetComponent<Animation>().CrossFade("HumanoidIdle");*/
     }
 
     private Vector3 getWorld(Tile t)
@@ -232,7 +243,7 @@ public class CharacterMovement : MonoBehaviour
             // TODO: display a number for each movement point used on tile
         }
 
-        // hide the rest of the (still visible) spheres
+        // hide the rest of the (still visible) movement points
         if (suggestedMovePathLineObjects.Count > pathlist.Count)
         {
             for (int s = pathlist.Count; s < suggestedMovePathLineObjects.Count; s++)
