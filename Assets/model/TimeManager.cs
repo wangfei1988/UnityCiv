@@ -23,9 +23,9 @@ public class TimeManager : MonoBehaviour
     public static TimeManager instance = null;
 
     private DateTime nextRoundStartsAt = DateTime.MaxValue;
-    
-    // TODO: Gather event handles from "PerformingAction", continue with round if all of them completed.
 
+    // TODO: Gather event handles from "PerformingAction", continue with round if all of them completed.
+    private int actionsStillBeingPerformed = 0;
 
     void Awake()
     {
@@ -37,30 +37,33 @@ public class TimeManager : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Return) && nextRoundStartsAt == DateTime.MaxValue)
         {
-            nextRoundStartsAt = DateTime.Now.AddSeconds(1);
+            nextRoundStartsAt = DateTime.Now.AddSeconds(0.5);
+            actionsStillBeingPerformed = 0;
             EventManager.TriggerEvent("NextRoundRequest");
         }
 
-        if (nextRoundStartsAt <= DateTime.Now)
+        if (nextRoundStartsAt <= DateTime.Now && actionsStillBeingPerformed <= 0)
         {
             nextRoundStartsAt = DateTime.MaxValue;
+            actionsStillBeingPerformed = 0;
             Round++;
             DisplayTime();
-            GameManager.instance.UIAudioSource.PlayOneShot(NextRoundClip, 0.4f);
+            GameManager.instance.UIAudioSource.PlayOneShot(NextRoundClip, 0.7f);
             EventManager.TriggerEvent("NextRound");
         }
     }
 
     /// <summary>
-    /// Listeners to "NextRoundRequest" call this if the next round is requested and they perform an action that takes a certain duration maximally
+    /// Listeners to "NextRoundRequest" call this if the next round is requested and they perform an action
     /// </summary>
     public void PerformingAction()
     {
-        /*if (nextRoundStartsAt != DateTime.MaxValue)
-        {
-            var newStartPoint = DateTime.Now.AddMilliseconds(miliseconds);
-            nextRoundStartsAt = newStartPoint > nextRoundStartsAt ? newStartPoint : nextRoundStartsAt;
-        }*/
+        actionsStillBeingPerformed++;
+    }
+
+    public void FinishedAction()
+    {
+        actionsStillBeingPerformed--;
     }
 
     /// <summary>
@@ -75,7 +78,7 @@ public class TimeManager : MonoBehaviour
     {
         if (Round < 0)
         {
-            TimeLabel.text = Round < 0 ? -Round + " BC" : Round + " AC";
+            TimeLabel.text = Round < 0 ? -Round + " BC" : Round + " AD";
         }
     }
 }

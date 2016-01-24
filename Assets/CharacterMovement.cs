@@ -115,9 +115,11 @@ public class CharacterMovement : MonoBehaviour
             RemainingPath = RemainingPath.Skip(movement).ToList();
             ExpendMovementPoints(movement);
             path.Reverse();
-
-            if (path.Count == 0)
+            if (path.Count <= 1)
                 return;
+
+            TimeManager.instance.PerformingAction();
+
             //the first tile we need to reach is actually in the end of the list just before the one the character is currently on
             curTile = path[path.Count - 2];
             curTilePos = getWorld(curTile);
@@ -136,20 +138,15 @@ public class CharacterMovement : MonoBehaviour
         //if the distance between the character and the center of the next tile is short enough
         if ((curTilePos - transform.position).sqrMagnitude < MinNextTileDist * MinNextTileDist)
         {
-            // Remove the way marker for the current tile
-            if (GridManager.instance.selectedUnit == gameObject && suggestedMovePathLineObjects[0].activeSelf)
-            {
-                var removeWayPoint = suggestedMovePathLineObjects[0];
-                removeWayPoint.SetActive(false);
-                suggestedMovePathLineObjects = suggestedMovePathLineObjects.Skip(1).ToList();
-                suggestedMovePathLineObjects.Add(removeWayPoint);
-            }
+            // Remove the way marker for the reached tile
+            RemoveNextWayMarker();
 
             //if we reached the destination tile
             if (path.IndexOf(curTile) == 0)
             {
                 IsMoving = false;
                 anim.Play("idle", -1);
+                TimeManager.instance.FinishedAction();
                 return;
             }
             //curTile becomes the next one
@@ -222,13 +219,12 @@ public class CharacterMovement : MonoBehaviour
         // perform remaining movement
         if (MovementPointsRemaining > 0 && RemainingPath.Count > 1)
         {
-            int movements = Math.Min(MovementPointsRemaining, RemainingPath.Count - 1);
+            /*int movements = Math.Min(MovementPointsRemaining, RemainingPath.Count - 1);
             var allWorldPos = RemainingPath.Take(movements + 1).Select(p => GridManager.instance.calcWorldCoord(new Vector2(p.X + p.Y/2, p.Y))).ToArray();
             double totalDist = 0;
             for (int i = 1; i < allWorldPos.Count(); i++)
                 totalDist += (allWorldPos[i - 1] - allWorldPos[i]).magnitude;
-            double timeForMovement = totalDist / speed * 60; // 60 fps
-            TimeManager.instance.PerformingAction(timeForMovement);
+            double timeForMovement = totalDist / speed * 60; // 60 fps*/
             StartMoving();
         }
     }
@@ -254,12 +250,13 @@ public class CharacterMovement : MonoBehaviour
 
     private void DrawPath(List<Tile> pathlist)
     {
-        for (int t = 0; t < pathlist.Count; t++)
+        // starting at 1 because the first tile in the list is the current tile itself
+        for (int t = 1; t < pathlist.Count; t++)
         {
             var tile = pathlist[t];
             GameObject point = null;
-            if (suggestedMovePathLineObjects.Count > t)
-                point = suggestedMovePathLineObjects[t];
+            if (suggestedMovePathLineObjects.Count > t - 1)
+                point = suggestedMovePathLineObjects[t - 1];
             else
             {
                 point = Instantiate(GridManager.instance.MovementLineObject);
@@ -279,6 +276,17 @@ public class CharacterMovement : MonoBehaviour
             {
                 suggestedMovePathLineObjects[s].SetActive(false);
             }
+        }
+    }
+
+    private void RemoveNextWayMarker()
+    {
+        if (GridManager.instance.selectedUnit == gameObject && suggestedMovePathLineObjects[0].activeSelf)
+        {
+            var removeWayPoint = suggestedMovePathLineObjects[0];
+            removeWayPoint.SetActive(false);
+            suggestedMovePathLineObjects = suggestedMovePathLineObjects.Skip(1).ToList();
+            suggestedMovePathLineObjects.Add(removeWayPoint);
         }
     }
 }

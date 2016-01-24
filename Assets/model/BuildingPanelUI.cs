@@ -13,10 +13,15 @@ public class BuildingPanelUI : MonoBehaviour
     public Text currentlyBuildingTitle;
     public Image currentlyBuildingIcon;
 
+    void Awake()
+    {
+        instance = this;
+        gameObject.SetActive(false);
+    }
+
     // Use this for initialization
     void Start ()
     {
-        instance = this;
         //gameObject.SetActive(false);
     }
 
@@ -54,6 +59,7 @@ public class BuildingPanelUI : MonoBehaviour
     {
         if (GridManager.instance.selectedBuilding != null)
         {
+            GameManager.instance.PlayUIClick();
             IGameBuilding building = GridManager.instance.selectedBuilding.GetComponent<IGameBuilding>();
             building.Produce(item);
             SetCurrentlyBuilding();

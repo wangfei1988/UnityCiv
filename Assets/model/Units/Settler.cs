@@ -40,9 +40,10 @@ public class Settler : IGameUnit
             {
                 GameObject village = Instantiate(VillagePrefab);
                 village.transform.position = transform.position;
-                village.GetComponent<IGameBuilding>().Location = movement.curTile;
+                var gb = village.GetComponent<IGameBuilding>();
+                gb.Location = movement.curTile;
                 RemoveCharacter();
-                audioSource.PlayOneShot(ExpandAudioClip, 1f);
+                gb.audioSource.PlayOneShot(ExpandAudioClip, 1f);
                 LeaveAction(_settlementHexArea);
             }
         }

@@ -51,6 +51,7 @@ public class Village : IGameBuilding
     public override void Select()
     {
         base.Select();
+        audioSource.PlayOneShot(GameManager.instance.Select1, 0.2f);
         BuildingPanelUI.instance.SetBuildItems(buildItems.ToArray(), (int)ProductionOutput);
     }
 
