@@ -8,7 +8,7 @@ public class BuildItem {
     public string Tooltip;
     public float ProductionCosts;
     public float PurchaseCosts;
-    public GameObject Produces;
+    public Object Produces;
 
     /// <summary>
     /// 
@@ -18,7 +18,7 @@ public class BuildItem {
     /// <param name="tooltip"></param>
     /// <param name="productionCosts"></param>
     /// <param name="purchaseCosts">Amount of gold the item can be purchased for. 0 = item can't be purchased.</param>
-    public BuildItem(string title, Sprite image, string tooltip, float productionCosts, float purchaseCosts, GameObject produces)
+    public BuildItem(string title, Sprite image, string tooltip, float productionCosts, float purchaseCosts, Object produces)
     {
         Title = title;
         Image = image;

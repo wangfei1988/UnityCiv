@@ -86,12 +86,20 @@ public class Village : IGameBuilding
             // is the item completed?
             if (Producing.Produced >= Producing.Item.ProductionCosts)
             {
-                var movement = Producing.Item.Produces.GetComponent<CharacterMovement>();
-                if (movement != null)
+                if (Producing.Item.Produces is GameObject)
                 {
-                    GridManager.instance.Spawn(Producing.Item.Produces, new Vector2(Location.X + Location.Y/2, Location.Y));
-                    Producing = null;
+                    GameObject produces = (GameObject)Producing.Item.Produces;
+                    var movement = produces.GetComponent<CharacterMovement>();
+                    if (movement != null)
+                    {
+                        GridManager.instance.Spawn(produces, new Vector2(Location.X + Location.Y / 2, Location.Y));
+                    }
                 }
+                else if (Producing.Item.Produces is Research)
+                {
+                    Research.instance.FinishedResearching(Producing.Item.Title);
+                }
+                Producing = null;
             }
 
             // update the building display if this building is currently selected

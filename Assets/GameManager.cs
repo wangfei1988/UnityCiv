@@ -9,6 +9,7 @@ public class GameManager : MonoBehaviour
 
     public AudioClip Select1;
     public AudioClip Click1;
+    public AudioClip MenuMusic;
 
     public List<BuildItem> AllBuildItems;
 
@@ -29,5 +30,10 @@ public class GameManager : MonoBehaviour
     {
         instance = this;
         AvailableBuildItems = new List<BuildItem>(AllBuildItems);
+    }
+
+    void Start()
+    {
+        UIAudioSource.PlayOneShot(MenuMusic, 0.8f);
     }
 }
