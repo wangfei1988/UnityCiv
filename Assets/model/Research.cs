@@ -1,12 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using System;
+using System.Linq;
 
 public class Research : MonoBehaviour {
 
     public Sprite[] Images;
 
-    public static readonly ResearchItem[] ResearchItems = new ResearchItem[]
+    public readonly ResearchItem[] ResearchItems = new ResearchItem[]
     {
         new ResearchItem()
         {
@@ -27,14 +28,9 @@ public class Research : MonoBehaviour {
             ResearchItems[i].Image = Images[i];
     }
 
-	// Use this for initialization
-	void Start () {
-	
-	}
-
-    public void FinishedResearching(String item)
+    public void FinishedResearching(string item)
     {
         // find ResearchItem
-        //ResearchItems.First(ri => ri)
+        ResearchItems.First(ri => ri.Title == item);
     }
 }

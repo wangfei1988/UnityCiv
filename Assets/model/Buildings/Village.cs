@@ -59,6 +59,7 @@ public class Village : IGameBuilding
     {
         base.Start();
         buildItems.Add(GameManager.instance.AvailableBuildItems.First());
+        buildItems.Add(GameManager.instance.AvailableBuildItems.First(f => f.Title == "Animal Husbandry"));
     }
 
     protected override void Awake()

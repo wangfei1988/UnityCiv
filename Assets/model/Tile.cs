@@ -10,6 +10,7 @@ public class Tile : GridObject, IHasNeighbours<Tile>
     public bool Passable;
     public TerrainType Type;
     public static Sprite[] Sprites;
+    public StrategicResource StrategicResource;
 
     public enum TerrainType
     {

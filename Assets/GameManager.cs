@@ -29,6 +29,14 @@ public class GameManager : MonoBehaviour
     void Awake()
     {
         instance = this;
+
+        // add all researches as build items
+        for (int i = 0; i < Research.instance.ResearchItems.Length; i++)
+        {
+            var research = Research.instance.ResearchItems[i];
+            AllBuildItems.Add(new BuildItem(research.Title, Research.instance.Images[i], research.Tooltip, research.ProductionCosts, 0, research));
+        }
+
         AvailableBuildItems = new List<BuildItem>(AllBuildItems);
     }
 

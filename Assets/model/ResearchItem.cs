@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 [System.Serializable]
-public class ResearchItem {
+public class ResearchItem : Object {
 
     public string Title;
     public Sprite Image;

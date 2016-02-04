@@ -8,6 +8,7 @@ public class LevelCreator : MonoBehaviour {
     
     public GameObject Settler;
     private float treePlacementTolerance = 0.01f;
+    public StrategicResource[] StrategicResources;
 
 	public void Create(Dictionary<Point, Tile> board, Vector2 gridSize)
     {
@@ -32,7 +33,12 @@ public class LevelCreator : MonoBehaviour {
         var boardValues = new List<Tile>(board.Values);
         boardValues.Shuffle();
 
-        foreach (var tile in board.Values)
+        // keep check on strategic resources
+        Dictionary<StrategicResource, int> placedResources = new Dictionary<StrategicResource, int>();
+        foreach (var res in StrategicResources)
+            placedResources.Add(res, rnd.Next(res.MinAmount, res.MaxAmount));
+
+        foreach (var tile in boardValues)
         {
             if (tile.Type == Tile.TerrainType.UNASSIGNED)
             {
@@ -58,7 +64,17 @@ public class LevelCreator : MonoBehaviour {
                     else
                     {
                         tile.Type = Tile.TerrainType.GRASS;
+
                     }
+                }
+
+                var matchingResource = placedResources.Keys.FirstOrDefault(f => placedResources[f] > 0 && f.RequiredType == tile.Type);
+                if (matchingResource != null)
+                {
+                    GameObject res = Instantiate(matchingResource.Model);
+                    res.transform.position = tilecenter;
+                    tile.StrategicResource = matchingResource;
+                    placedResources[matchingResource]--;
                 }
             }
         }
@@ -78,7 +94,6 @@ public class LevelCreator : MonoBehaviour {
 
             }
         }*/
-
 
 
         var amountUnassigned = board.Values.Count(tl => tl.Type == Tile.TerrainType.UNASSIGNED);
