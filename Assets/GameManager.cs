@@ -55,7 +55,8 @@ public class GameManager : MonoBehaviour
         UIAudioSource.PlayOneShot(MenuMusic, 0.8f);
         
         //testwise
-        ToggleResourceDisplay();
+        Tile.TileValuesContainer = new GameObject("TileValues");
+        //ToggleResourceDisplay();
     }
 
     private bool tileResourcesDisplayed = false;

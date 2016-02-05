@@ -10,6 +10,7 @@ public class Tile : GridObject, IHasNeighbours<Tile>
     public bool Passable;
     public TerrainType Type;
     public static Sprite[] Sprites;
+    public static GameObject TileValuesContainer;
     public StrategicResource StrategicResource;
     public bool InPlayerTerritory = true;
 
@@ -53,6 +54,7 @@ public class Tile : GridObject, IHasNeighbours<Tile>
         {
             tileResourceDisplay = UnityEngine.Object.Instantiate(GameManager.instance.TileValueDisplayPrefab);
             tileResourceDisplay.transform.position = Representation.transform.position;
+            tileResourceDisplay.transform.SetParent(TileValuesContainer.transform);
         }
 
         var trd = tileResourceDisplay.GetComponent<TileValueDisplay>();
