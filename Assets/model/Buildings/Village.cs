@@ -87,7 +87,11 @@ public class Village : IGameBuilding
             // is the item completed?
             if (Producing.Produced >= Producing.Item.ProductionCosts)
             {
-                if (Producing.Item.Produces is GameObject)
+                if (Producing.Item.Produces is ResearchItem)
+                {
+                    GameManager.instance.Research.FinishedResearching(Producing.Item.Title);
+                }
+                else
                 {
                     GameObject produces = (GameObject)Producing.Item.Produces;
                     var movement = produces.GetComponent<CharacterMovement>();
@@ -95,10 +99,6 @@ public class Village : IGameBuilding
                     {
                         GridManager.instance.Spawn(produces, new Vector2(Location.X + Location.Y / 2, Location.Y));
                     }
-                }
-                else if (Producing.Item.Produces is Research)
-                {
-                    GameManager.instance.Research.FinishedResearching(Producing.Item.Title);
                 }
                 Producing = null;
             }

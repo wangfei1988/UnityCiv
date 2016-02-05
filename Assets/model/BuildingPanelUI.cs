@@ -43,7 +43,8 @@ public class BuildingPanelUI : MonoBehaviour
                 newItem_vals.title.text = item.Title;
                 newItem_vals.icon.sprite = item.Image;
                 newItem_vals.turns.text = ((int)item.ProductionCosts / ProductionOutput) + " Turns";
-                newItem_vals.button.onClick.AddListener(new UnityEngine.Events.UnityAction(() => SelectItem(item)));
+                var li = item;
+                newItem_vals.button.onClick.AddListener(new UnityEngine.Events.UnityAction(() => SelectItem(li)));
                 newItem.transform.SetParent(buildPanelContainer);
             }
 

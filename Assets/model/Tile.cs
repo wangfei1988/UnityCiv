@@ -57,9 +57,9 @@ public class Tile : GridObject, IHasNeighbours<Tile>
             tileResourceDisplay.transform.SetParent(TileValuesContainer.transform);
         }
 
+        tileResourceDisplay.gameObject.SetActive(true);
         var trd = tileResourceDisplay.GetComponent<TileValueDisplay>();
         trd.SetTile(this);
-        tileResourceDisplay.gameObject.SetActive(true);
     }
     private GameObject tileResourceDisplay = null;
 

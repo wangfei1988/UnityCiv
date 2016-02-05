@@ -20,10 +20,23 @@ public class TileValueDisplay : MonoBehaviour {
         gameObject.GetComponent<RectTransform>().localScale = new Vector3(0.01f, 0.01f, 0);
     }
 
+    private List<Image> usedElements = new List<Image>();
+
     public void SetTile(Tile tile)
     {
-        for (var i = 0; i < BasicResourceDisplay.childCount; i++)
-            Destroy(BasicResourceDisplay.GetChild(i));
+        /*if (BasicResourceDisplay.childCount > 0)
+        {
+            var allChildren = BasicResourceDisplay.GetComponentsInChildren<Transform>().Where(c => c != null);
+            //BasicResourceDisplay.DetachChildren();
+            foreach (var c in allChildren)
+                DestroyImmediate(c);
+        }*/
+        foreach (var e in usedElements)
+        {
+            //e.transform.SetParent(null);
+            Destroy(e.gameObject);
+        }
+        usedElements = new List<Image>();
 
         var resources = tile.GetTileResources();
         // if there's a strategic resource, display its image
@@ -49,6 +62,7 @@ public class TileValueDisplay : MonoBehaviour {
             Image ficon = Instantiate(FoodIconPrefab);
             ficon.transform.position = new Vector3(currentPos, 0, 0);
             ficon.transform.SetParent(BasicResourceDisplay, false);
+            usedElements.Add(ficon);
         }
 
         currentPos += Math.Min(1, food.Value * production.Value) * DistanceBetweenBasicResources;
@@ -60,6 +74,7 @@ public class TileValueDisplay : MonoBehaviour {
             Image picon = Instantiate(ProductionIconPrefab);
             picon.transform.position = new Vector3(currentPos, 0, 0);
             picon.transform.SetParent(BasicResourceDisplay, false);
+            usedElements.Add(picon);
         }
 
     }
