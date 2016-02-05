@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System;
 using System.Linq;
 
-public class Research : MonoBehaviour {
+public class Research {
 
-    public Sprite[] Images;
 
     public readonly ResearchItem[] ResearchItems = new ResearchItem[]
     {
@@ -16,16 +15,13 @@ public class Research : MonoBehaviour {
             ProductionCosts = 300
         }
     };
+    
 
-    public static Research instance = null;
-
-    void Awake()
+    public Research(Sprite[] images)
     {
-        instance = this;
-
         // set images
         for (int i = 0; i < ResearchItems.Length; i++)
-            ResearchItems[i].Image = Images[i];
+            ResearchItems[i].Image = images[i];
     }
 
     public void FinishedResearching(string item)

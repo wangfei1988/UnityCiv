@@ -98,7 +98,7 @@ public class Village : IGameBuilding
                 }
                 else if (Producing.Item.Produces is Research)
                 {
-                    Research.instance.FinishedResearching(Producing.Item.Title);
+                    GameManager.instance.Research.FinishedResearching(Producing.Item.Title);
                 }
                 Producing = null;
             }

@@ -11,6 +11,7 @@ public class Tile : GridObject, IHasNeighbours<Tile>
     public TerrainType Type;
     public static Sprite[] Sprites;
     public StrategicResource StrategicResource;
+    public bool InPlayerTerritory = true;
 
     public enum TerrainType
     {
@@ -26,6 +27,47 @@ public class Tile : GridObject, IHasNeighbours<Tile>
     {
         Passable = true;
         Type = TerrainType.UNASSIGNED;
+    }
+
+    public Dictionary<Resource, int> GetTileResources()
+    {
+        if (!InPlayerTerritory)
+            return null;
+
+        return new Dictionary<Resource, int>()
+        {
+            { Food.i, 3 },
+            { Production.i, 2 }
+        };
+    }
+
+    /// <summary>
+    /// Display the tile resource icons
+    /// </summary>
+    public void DisplayTileResources()
+    {
+        if (!InPlayerTerritory)
+            return;
+
+        if (tileResourceDisplay == null)
+        {
+            tileResourceDisplay = UnityEngine.Object.Instantiate(GameManager.instance.TileValueDisplayPrefab);
+            tileResourceDisplay.transform.position = Representation.transform.position;
+        }
+
+        var trd = tileResourceDisplay.GetComponent<TileValueDisplay>();
+        trd.SetTile(this);
+        tileResourceDisplay.gameObject.SetActive(true);
+    }
+    private GameObject tileResourceDisplay = null;
+
+    /// <summary>
+    /// Hide the tile resource icons
+    /// </summary>
+    public void HideTileResources()
+    {
+        if (tileResourceDisplay != null)
+            tileResourceDisplay.SetActive(false);
     }
 
     public GameObject Representation { get; set; }
