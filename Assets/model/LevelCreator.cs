@@ -95,6 +95,10 @@ public class LevelCreator : MonoBehaviour {
             }
         }*/
 
+        /*t.detailObjectDistance = 100000;
+        t.treeBillboardDistance = 100000;
+        t.treeDistance = 100000;
+        t.treeMaximumFullLODCount = 2000;*/
 
         var amountUnassigned = board.Values.Count(tl => tl.Type == Tile.TerrainType.UNASSIGNED);
         if (amountUnassigned > 0)
