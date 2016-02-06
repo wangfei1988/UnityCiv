@@ -315,7 +315,7 @@ public class GridManager : MonoBehaviour
                             //UnitPanelUI.instance.SetUnitPanelInfo(null);
                             BuildingPanelUI.instance.SetBuildItems(null, 0);
                             selectedBuilding = null;
-                            selectedUnit.GetComponent<IEntity>().Select();
+                            if (selectedUnit != null) selectedUnit.GetComponent<IEntity>().Select();
                         }
                         else if (allBuildings.Contains(selected))
                         {
