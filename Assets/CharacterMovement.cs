@@ -227,6 +227,9 @@ public class CharacterMovement : MonoBehaviour
     private void nextRoundListener()
     {
         MovementPointsRemaining = (int)MovementPointsMax;
+        // draw the next path's reachability for this round if the unit's selected
+        if (GridManager.instance.selectedUnit == gameObject)
+            DrawPath(RemainingPath);
     }
 
     private static List<GameObject> suggestedMovePathLineObjects = new List<GameObject>();
@@ -241,6 +244,11 @@ public class CharacterMovement : MonoBehaviour
             pathlist.Reverse();
             DrawPath(pathlist);
         }
+    }
+
+    public void DrawPath()
+    {
+        DrawPath(RemainingPath);
     }
 
     private void DrawPath(List<Tile> pathlist)
@@ -265,9 +273,9 @@ public class CharacterMovement : MonoBehaviour
         }
 
         // hide the rest of the (still visible) movement points
-        if (suggestedMovePathLineObjects.Count > pathlist.Count)
+        if (suggestedMovePathLineObjects.Count >= pathlist.Count)
         {
-            for (int s = pathlist.Count; s < suggestedMovePathLineObjects.Count; s++)
+            for (int s = pathlist.Count - 1; s < suggestedMovePathLineObjects.Count; s++)
             {
                 suggestedMovePathLineObjects[s].SetActive(false);
             }
@@ -283,5 +291,14 @@ public class CharacterMovement : MonoBehaviour
             suggestedMovePathLineObjects = suggestedMovePathLineObjects.Skip(1).ToList();
             suggestedMovePathLineObjects.Add(removeWayPoint);
         }
+    }
+
+    /// <summary>
+    /// Hides the unit's path
+    /// </summary>
+    public void RemoveWayMarkers()
+    {
+        foreach (var o in suggestedMovePathLineObjects)
+            o.SetActive(false);
     }
 }

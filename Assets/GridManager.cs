@@ -308,10 +308,14 @@ public class GridManager : MonoBehaviour
                             entitiesOnTile.First().GetComponent<IEntity>().Select();
                         }
 
+                        // If nothing is selected we'll leave the current unit selected, but we can get rid of the building!
+                        // There will always be a unit selected, if possible
                         if (selected == null)
                         {
-                            UnitPanelUI.instance.SetUnitPanelInfo(null);
+                            //UnitPanelUI.instance.SetUnitPanelInfo(null);
                             BuildingPanelUI.instance.SetBuildItems(null, 0);
+                            selectedBuilding = null;
+                            selectedUnit.GetComponent<IEntity>().Select();
                         }
                         else if (allBuildings.Contains(selected))
                         {

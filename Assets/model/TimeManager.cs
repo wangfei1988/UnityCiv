@@ -112,7 +112,8 @@ public class TimeManager : MonoBehaviour
     private void UpdateEntitiesAwaitingOrders()
     {
         // set entitiesAwaitingOrders
-        entitiesAwaitingOrders = GridManager.instance.allUnits.Select(u => u.GetComponent<IEntity>()).Where(ue => ue.NeedsOrders()).ToList();
+        var allEntities = GridManager.instance.allUnits.Union(GridManager.instance.allBuildings);
+        entitiesAwaitingOrders = allEntities.Select(u => u.GetComponent<IEntity>()).Where(ue => ue.NeedsOrders()).ToList();
     }
 
     private void SelectNextAwaitingOrder()

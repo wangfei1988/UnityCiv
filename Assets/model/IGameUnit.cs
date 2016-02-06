@@ -18,6 +18,10 @@ public abstract class IGameUnit : IEntity {
     public override void Select()
     {
         GridManager.instance.selectedUnit = gameObject;
+        BuildingPanelUI.instance.SetBuildItems(null, 0);
+        var movement = gameObject.GetComponent<CharacterMovement>();
+        if (movement != null)
+            movement.DrawPath();
     }
 
     protected virtual void Start()
@@ -30,12 +34,15 @@ public abstract class IGameUnit : IEntity {
     /// </summary>
     public void RemoveCharacter()
     {
-        Destroy(gameObject);
         if (GridManager.instance.selectedUnit == gameObject)
         {
             GridManager.instance.selectedUnit = null;
             UnitPanelUI.instance.SetUnitPanelInfo(null);
+            var movement = gameObject.GetComponent<CharacterMovement>();
+            if (movement != null)
+                movement.RemoveWayMarkers();
         }
         GridManager.instance.allUnits.Remove(gameObject);
+        Destroy(gameObject);
     }
 }

@@ -22,6 +22,7 @@ public abstract class IGameBuilding : IEntity
     public override void Select()
     {
         GridManager.instance.selectedBuilding = gameObject;
+        UnitPanelUI.instance.SetUnitPanelInfo(null);
     }
 
     protected virtual void Start()
