@@ -4,6 +4,7 @@ using System.Collections;
 using UnityEngine.UI;
 using System;
 using System.Linq;
+using System.Collections.Generic;
 
 /// <summary>
 /// Next round method chain:
@@ -24,6 +25,7 @@ public class TimeManager : MonoBehaviour
     public static TimeManager instance = null;
 
     private DateTime nextRoundStartsAt = DateTime.MaxValue;
+    private List<IEntity> entitiesAwaitingOrders = new List<IEntity>();
 
     // TODO: Gather event handles from "PerformingAction", continue with round if all of them completed.
     private int actionsStillBeingPerformed = 0;
@@ -72,8 +74,9 @@ public class TimeManager : MonoBehaviour
     /// <summary>
     /// Listeners to "NextRoundRequest" call this if they can't go to the next round because e.g. because a user input is still required
     /// </summary>
-    public void DenyNextRoundRequest()
+    public void DenyNextRoundRequest(IEntity entity)
     {
+        entitiesAwaitingOrders.Add(entity);
         nextRoundStartsAt = DateTime.MaxValue;
     }
 

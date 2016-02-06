@@ -7,9 +7,7 @@ public class Settler : IGameUnit
 {
 
     public GameObject VillagePrefab;
-
     public Sprite icon_expand;
-
     public AudioClip ExpandAudioClip;
 
     private static String[] actions = new String[]
@@ -93,5 +91,36 @@ public class Settler : IGameUnit
     {
         GridManager.instance.DrawHexArea(movement.curTile, 2, 0, Tile.TileColorPresets.WhiteTransparent);
         _settlementHexArea = -1;
+    }
+
+    public override bool NeedsOrders()
+    {
+        if (movement.RemainingPath.Count > 1 || movement.MovementPointsRemaining == 0)
+        {
+            return false;
+        }
+        return true;
+    }
+
+    void OnEnable()
+    {
+        EventManager.StartListening("NextRound", nextRoundListener);
+        EventManager.StartListening("NextRoundRequest", nextRoundRequestListener);
+    }
+
+    void OnDisable()
+    {
+        EventManager.StopListening("NextRound", nextRoundListener);
+        EventManager.StopListening("NextRoundRequest", nextRoundRequestListener);
+    }
+
+    private void nextRoundRequestListener()
+    {
+        if (NeedsOrders())
+            TimeManager.instance.DenyNextRoundRequest(this);
+    }
+
+    private void nextRoundListener()
+    {
     }
 }

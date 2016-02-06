@@ -7,7 +7,7 @@ public class CivCamera : MonoBehaviour
     public GameObject zoomElementZ;
     public float speed = 10.0F;
     public float rotationSpeed = 100.0F;
-    public float zoomSpeed = 10.0F;
+    public float zoomSpeed = 50.0F;
 
     private Vector3? isAutoMovingTowards = null;
     private float currentAutoMoveSpeed = 0;

@@ -219,12 +219,6 @@ public class CharacterMovement : MonoBehaviour
         // perform remaining movement
         if (MovementPointsRemaining > 0 && RemainingPath.Count > 1)
         {
-            /*int movements = Math.Min(MovementPointsRemaining, RemainingPath.Count - 1);
-            var allWorldPos = RemainingPath.Take(movements + 1).Select(p => GridManager.instance.calcWorldCoord(new Vector2(p.X + p.Y/2, p.Y))).ToArray();
-            double totalDist = 0;
-            for (int i = 1; i < allWorldPos.Count(); i++)
-                totalDist += (allWorldPos[i - 1] - allWorldPos[i]).magnitude;
-            double timeForMovement = totalDist / speed * 60; // 60 fps*/
             StartMoving();
         }
     }
