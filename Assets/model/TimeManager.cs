@@ -3,6 +3,7 @@ using UnityEngine.Events;
 using System.Collections;
 using UnityEngine.UI;
 using System;
+using System.Linq;
 
 /// <summary>
 /// Next round method chain:
@@ -40,6 +41,8 @@ public class TimeManager : MonoBehaviour
             nextRoundStartsAt = DateTime.Now.AddSeconds(0.5);
             actionsStillBeingPerformed = 0;
             EventManager.TriggerEvent("NextRoundRequest");
+            //test
+            //GameManager.instance.CameraControls.FlyToTarget(GridManager.instance.allUnits.First().transform.position);
         }
 
         if (nextRoundStartsAt <= DateTime.Now && actionsStillBeingPerformed <= 0)

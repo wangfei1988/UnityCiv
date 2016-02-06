@@ -8,6 +8,8 @@ public class GameManager : MonoBehaviour
 {
     public AudioSource UIAudioSource;
 
+    public CivCamera CameraControls;
+
     public AudioClip Select1;
     public AudioClip Click1;
     public AudioClip MenuMusic;
@@ -16,8 +18,6 @@ public class GameManager : MonoBehaviour
 
     public GameObject TileValueDisplayPrefab;
 
-    public Research Research;
-
     public List<BuildItem> AvailableBuildItems
     {
         get;
@@ -25,6 +25,8 @@ public class GameManager : MonoBehaviour
     }
 
     public Sprite[] ResearchImages;
+
+    public Research Research;
 
     public void PlayUIClick()
     {
