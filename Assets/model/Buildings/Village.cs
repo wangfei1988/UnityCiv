@@ -108,4 +108,9 @@ public class Village : IGameBuilding
                 BuildingPanelUI.instance.SetCurrentlyBuilding();
         }
     }
+
+    public override bool NeedsOrders()
+    {
+        return Producing == null;
+    }
 }

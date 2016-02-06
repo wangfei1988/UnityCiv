@@ -101,26 +101,4 @@ public class Settler : IGameUnit
         }
         return true;
     }
-
-    void OnEnable()
-    {
-        EventManager.StartListening("NextRound", nextRoundListener);
-        EventManager.StartListening("NextRoundRequest", nextRoundRequestListener);
-    }
-
-    void OnDisable()
-    {
-        EventManager.StopListening("NextRound", nextRoundListener);
-        EventManager.StopListening("NextRoundRequest", nextRoundRequestListener);
-    }
-
-    private void nextRoundRequestListener()
-    {
-        if (NeedsOrders())
-            TimeManager.instance.DenyNextRoundRequest(this);
-    }
-
-    private void nextRoundListener()
-    {
-    }
 }

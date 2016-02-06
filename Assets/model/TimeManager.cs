@@ -14,8 +14,12 @@ using System.Collections.Generic;
 public class TimeManager : MonoBehaviour
 {
     public AudioClip NextRoundClip;
-
     public Text TimeLabel;
+    public Image NextRoundButtonImage;
+    public Sprite NextRoundNextSprite;
+    public Sprite NextRoundUnitSprite;
+    public Sprite NextRoundBuildingSprite;
+
     public int Round
     {
         get;
@@ -23,6 +27,8 @@ public class TimeManager : MonoBehaviour
     }
 
     public static TimeManager instance = null;
+
+    private bool nextRoundRequested = false;
 
     private DateTime nextRoundStartsAt = DateTime.MaxValue;
     private List<IEntity> entitiesAwaitingOrders = new List<IEntity>();
@@ -38,13 +44,26 @@ public class TimeManager : MonoBehaviour
     
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Return) && nextRoundStartsAt == DateTime.MaxValue)
+        if ((Input.GetKeyDown(KeyCode.Return) || nextRoundRequested) && nextRoundStartsAt == DateTime.MaxValue)
         {
-            nextRoundStartsAt = DateTime.Now.AddSeconds(0.5);
-            actionsStillBeingPerformed = 0;
-            EventManager.TriggerEvent("NextRoundRequest");
-            //test
-            //GameManager.instance.CameraControls.FlyToTarget(GridManager.instance.allUnits.First().transform.position);
+            nextRoundRequested = false;
+
+            if (entitiesAwaitingOrders.Count == 0)
+            {
+                UpdateEntitiesAwaitingOrders();
+            }
+
+            if (entitiesAwaitingOrders.Count == 0)
+            {
+                nextRoundStartsAt = DateTime.Now.AddSeconds(0.5);
+                actionsStillBeingPerformed = 0;
+                EventManager.TriggerEvent("NextRoundRequest");
+            }
+            else
+            {
+                // select the first unit from the list that still requires action
+                SelectNextAwaitingOrder();
+            }
         }
 
         if (nextRoundStartsAt <= DateTime.Now && actionsStillBeingPerformed <= 0)
@@ -53,6 +72,8 @@ public class TimeManager : MonoBehaviour
             actionsStillBeingPerformed = 0;
             Round++;
             DisplayTime();
+            NextRoundButtonImage.sprite = NextRoundNextSprite;
+            //NextRoundButtonImage.CrossFadeColor(new Color(0f / 255, 0f / 255, 0), 1, true, false);
             GameManager.instance.UIAudioSource.PlayOneShot(NextRoundClip, 0.7f);
             EventManager.TriggerEvent("NextRound");
         }
@@ -71,13 +92,58 @@ public class TimeManager : MonoBehaviour
         actionsStillBeingPerformed--;
     }
 
-    /// <summary>
-    /// Listeners to "NextRoundRequest" call this if they can't go to the next round because e.g. because a user input is still required
-    /// </summary>
-    public void DenyNextRoundRequest(IEntity entity)
+    public void NoMoreOrdersNeeded(IEntity entity)
     {
-        entitiesAwaitingOrders.Add(entity);
-        nextRoundStartsAt = DateTime.MaxValue;
+        if (entitiesAwaitingOrders.Contains(entity))
+        {
+            entitiesAwaitingOrders.Remove(entity);
+            IEntity next = GetNextEntityAwaitingOrders();
+            if (next == null)
+            {
+                NextRoundButtonImage.sprite = NextRoundNextSprite;
+            }
+            else
+            {
+                NextRoundButtonImage.sprite = next is IGameUnit ? NextRoundUnitSprite : NextRoundBuildingSprite;
+            }
+        }
+    }
+
+    private void UpdateEntitiesAwaitingOrders()
+    {
+        // set entitiesAwaitingOrders
+        entitiesAwaitingOrders = GridManager.instance.allUnits.Select(u => u.GetComponent<IEntity>()).Where(ue => ue.NeedsOrders()).ToList();
+    }
+
+    private void SelectNextAwaitingOrder()
+    {
+        IEntity e = GetNextEntityAwaitingOrders();
+
+        if (e == null)
+        {
+            NextRoundButtonImage.sprite = NextRoundNextSprite;
+        }
+        else
+        {
+            NextRoundButtonImage.sprite = e is IGameUnit ? NextRoundUnitSprite : NextRoundBuildingSprite;
+            GameManager.instance.CameraControls.FlyToTarget(e.transform.position);
+            e.Select();
+        }
+    }
+
+    private IEntity GetNextEntityAwaitingOrders()
+    {
+        IEntity e = null;
+        while (e == null && entitiesAwaitingOrders.Count > 0)
+        {
+            e = entitiesAwaitingOrders.First();
+            if (!e.NeedsOrders())
+            {
+                entitiesAwaitingOrders.Remove(e);
+                e = null;
+            }
+        }
+        return e;
     }
 
     private void DisplayTime()
@@ -86,5 +152,10 @@ public class TimeManager : MonoBehaviour
         {
             TimeLabel.text = Round < 0 ? -Round + " BC" : Round + " AD";
         }
+    }
+
+    public void RequestNextRound()
+    {
+        nextRoundRequested = true;
     }
 }

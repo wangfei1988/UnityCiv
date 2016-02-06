@@ -15,4 +15,10 @@ public abstract class IEntity : MonoBehaviour {
     }
 
     public abstract void Select();
+
+    /// <summary>
+    /// Returns whether the unit still needs orders for this turn or whether it knows what to do
+    /// </summary>
+    /// <returns></returns>
+    public abstract bool NeedsOrders();
 }

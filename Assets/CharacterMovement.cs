@@ -119,6 +119,7 @@ public class CharacterMovement : MonoBehaviour
                 return;
 
             TimeManager.instance.PerformingAction();
+            TimeManager.instance.NoMoreOrdersNeeded(gameObject.GetComponent<IEntity>());
 
             //the first tile we need to reach is actually in the end of the list just before the one the character is currently on
             curTile = path[path.Count - 2];

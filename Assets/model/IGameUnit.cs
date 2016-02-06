@@ -15,12 +15,6 @@ public abstract class IGameUnit : IEntity {
 
     public abstract void LeaveAction(int action);
 
-    /// <summary>
-    /// Returns whether the unit still needs orders for this turn or whether it knows what to do
-    /// </summary>
-    /// <returns></returns>
-    public abstract bool NeedsOrders();
-
     public override void Select()
     {
         GridManager.instance.selectedUnit = gameObject;
