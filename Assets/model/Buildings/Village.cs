@@ -45,6 +45,7 @@ public class Village : IGameBuilding
     public override void Produce(BuildItem item)
     {
         Producing = new BuildOrder(item, 0);
+        TimeManager.instance.NoMoreOrdersNeeded(this);
         Debug.Log("Producing now " + item.Title);
     }
 
@@ -101,6 +102,7 @@ public class Village : IGameBuilding
                     }
                 }
                 Producing = null;
+                TimeManager.instance.NeedNewOrders(this);
             }
 
             // update the building display if this building is currently selected

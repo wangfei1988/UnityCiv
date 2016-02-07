@@ -12,6 +12,8 @@ public abstract class IEntity : MonoBehaviour {
         audioSource.minDistance = 2;
         audioSource.spatialBlend = 1f;
         audioSource.rolloffMode = AudioRolloffMode.Linear;
+
+        TimeManager.instance.NeedNewOrders(this);
     }
 
     public abstract void Select();

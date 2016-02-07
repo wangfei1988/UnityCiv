@@ -41,6 +41,12 @@ public class TimeManager : MonoBehaviour
         instance = this;
         Round = -4000;
     }
+
+    void Start()
+    {
+        Cursor.SetCursor(GameManager.instance.PointerNormal, new Vector2(1, 3), CursorMode.Auto);
+        
+    }
     
     void Update()
     {
@@ -92,6 +98,10 @@ public class TimeManager : MonoBehaviour
         actionsStillBeingPerformed--;
     }
 
+    /// <summary>
+    /// Call this if an entity needs no more orders for this round
+    /// </summary>
+    /// <param name="entity"></param>
     public void NoMoreOrdersNeeded(IEntity entity)
     {
         if (entitiesAwaitingOrders.Contains(entity))
@@ -105,6 +115,22 @@ public class TimeManager : MonoBehaviour
             else
             {
                 NextRoundButtonImage.sprite = next is IGameUnit ? NextRoundUnitSprite : NextRoundBuildingSprite;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Call this if an entity requires orders which it didn't already require at the beginning of the round. Example: Newly created entity
+    /// </summary>
+    /// <param name="entity"></param>
+    public void NeedNewOrders(IEntity entity)
+    {
+        if (!entitiesAwaitingOrders.Contains(entity))
+        {
+            entitiesAwaitingOrders.Add(entity);
+            if (entitiesAwaitingOrders.Count == 1)
+            {
+                NextRoundButtonImage.sprite = entity is IGameUnit ? NextRoundUnitSprite : NextRoundBuildingSprite;
             }
         }
     }

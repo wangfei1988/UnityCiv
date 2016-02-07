@@ -7,9 +7,8 @@ using System.Linq;
 public class GameManager : MonoBehaviour
 {
     public AudioSource UIAudioSource;
-
     public CivCamera CameraControls;
-
+    public Texture2D PointerNormal;
     public AudioClip Select1;
     public AudioClip Click1;
     public AudioClip MenuMusic;

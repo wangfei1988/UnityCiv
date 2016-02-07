@@ -40,6 +40,7 @@ public class Settler : IGameUnit
                 village.transform.position = transform.position;
                 var gb = village.GetComponent<IGameBuilding>();
                 gb.Location = movement.curTile;
+                TimeManager.instance.NoMoreOrdersNeeded(this);
                 RemoveCharacter();
                 gb.audioSource.PlayOneShot(ExpandAudioClip, 1f);
                 LeaveAction(_settlementHexArea);
