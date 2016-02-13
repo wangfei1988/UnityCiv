@@ -4,7 +4,7 @@ using System.Collections.Generic;
 [System.Serializable]
 public class StrategicResource : Resource
 {
-    public string Title;
+    public string Name;
     public GameObject Model;
     public int MinAmount;
     public int MaxAmount;
