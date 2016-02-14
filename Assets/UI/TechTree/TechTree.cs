@@ -43,12 +43,15 @@ public class TechTree : MonoBehaviour {
 
     public void SelectItem(TechItem techItem)
     {
-        if (SelectedItem != null)
+        if (techItem.Background.sprite == AvailableBackground)
         {
-            SelectedItem.Background.sprite = NormalBackground; // or free
+            if (SelectedItem != null)
+            {
+                SelectedItem.Background.sprite = AvailableBackground;
+            }
+            techItem.Background.sprite = SelectedBackground;
+            SelectedItem = techItem;
         }
-        techItem.Background.sprite = SelectedBackground;
-        SelectedItem = techItem;
     }
 
     private void BuildTree(ResearchItem[] researchItems)

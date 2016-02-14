@@ -7,6 +7,7 @@ public class TechItem : MonoBehaviour {
     public ResearchItem ResearchItem;
     public Image Icon;
     public Text Name;
+    public Text Turns;
     public Image Background;
     public TechTree TechTreeInstance;
 
