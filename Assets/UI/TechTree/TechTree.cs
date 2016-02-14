@@ -4,6 +4,10 @@ using System.Collections.Generic;
 
 public class TechTree : MonoBehaviour {
 
+    public Sprite NormalBackground;
+    public Sprite FinishedBackground;
+    public Sprite AvailableBackground;
+    public Sprite SelectedBackground;
     public GameObject TechItemsContainer;
     public GameObject TechItemDisplayPrefab;
     public GameObject TechLineHorizontal;
@@ -19,6 +23,7 @@ public class TechTree : MonoBehaviour {
     private float startY = -100;
 
     private Dictionary<ResearchItem, TechItem> ItemDisplays;
+    private TechItem SelectedItem;
 
 	// Use this for initialization
 	void Start () {
@@ -31,6 +36,21 @@ public class TechTree : MonoBehaviour {
 	    
 	}
 
+    public void SetFinished(ResearchItem item)
+    {
+        ItemDisplays[item].Background.sprite = FinishedBackground;
+    }
+
+    public void SelectItem(TechItem techItem)
+    {
+        if (SelectedItem != null)
+        {
+            SelectedItem.Background.sprite = NormalBackground; // or free
+        }
+        techItem.Background.sprite = SelectedBackground;
+        SelectedItem = techItem;
+    }
+
     private void BuildTree(ResearchItem[] researchItems)
     {
         Debug.Log("Build Research Tree");
@@ -41,14 +61,25 @@ public class TechTree : MonoBehaviour {
             displayItem.transform.position = new Vector3(startX + item.X * gridX, startY + item.Y * gridY, 0);
             var ti = displayItem.GetComponent<TechItem>();
             ti.SetResearchItem(item);
-            //ItemDisplays.Add(item, ti); //TODO: Equality comparer?
+            ti.TechTreeInstance = this;
+            ItemDisplays.Add(item, ti);
             // create connections to children
             if (item.Children != null)
                 foreach (var child in item.Children)
                     CreateLine(item.X, item.Y, child.X, child.Y);
+            // show as available if on first layer
+            if (item.X == 0)
+                ti.Background.sprite = AvailableBackground;
         }
     }
 
+    /// <summary>
+    /// Creates a UI connection between a parent and a child position
+    /// </summary>
+    /// <param name="x1"></param>
+    /// <param name="y1"></param>
+    /// <param name="x2"></param>
+    /// <param name="y2"></param>
     private void CreateLine(int x1, int y1, int x2, int y2)
     {
         float distance1 = x2 - x1 - 1;
