@@ -9,4 +9,7 @@ public class ResearchItem : Object {
     public string Tooltip;
     public float ProductionCosts;
     public List<Object> LeadsTo;
+    public List<ResearchItem> Children;
+    public int X;
+    public int Y;
 }
