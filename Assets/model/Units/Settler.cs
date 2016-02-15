@@ -10,24 +10,6 @@ public class Settler : IGameUnit
     public Sprite icon_expand;
     public AudioClip ExpandAudioClip;
 
-    private static String[] actions = new String[]
-    {
-        "Expand"
-    };
-
-    public override string[] Actions
-    {
-        get
-        {
-            return actions;
-        }
-
-        protected set
-        {
-            Settler.actions = value;
-        }
-    }
-
     protected CharacterMovement movement;
 
     public override void UseAction(int action)

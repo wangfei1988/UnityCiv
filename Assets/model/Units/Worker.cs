@@ -1,37 +1,23 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 public class Worker : IGameUnit {
-
-
-    public GameObject VillagePrefab;
-    public Sprite icon_expand;
-    public AudioClip ExpandAudioClip;
-
-    private static String[] actions = new String[]
-    {
-        "Expand"
-    };
-
-    public override string[] Actions
-    {
-        get
-        {
-            return actions;
-        }
-
-        protected set
-        {
-            Worker.actions = value;
-        }
-    }
-
+    
+    public GameObject HuntingShackPrefab;
+    public Sprite IconHuntingShack;
+    public AudioClip WorkerStartWork;
+    
     protected CharacterMovement movement;
+
+    private static List<Phase1Building> Actions = new List<Phase1Building>();
 
     public override void UseAction(int action)
     {
-        if (action == 0)
+        Actions.ElementAt(action);
+        /*if (action == 0)
         {
             if (movement.ExpendMovementPoints(2))
             {
@@ -44,16 +30,14 @@ public class Worker : IGameUnit {
                 gb.audioSource.PlayOneShot(ExpandAudioClip, 1f);
                 LeaveAction(_settlementHexArea);
             }
-        }
+        }*/
     }
 
     public override void Select()
     {
         base.Select();
         // draw own panel
-        UnitPanelUI.instance.SetUnitPanelInfo(new UnitPanelUI.UnitInfo[] {
-            new UnitPanelUI.UnitInfo(icon_expand, "testtooltip")
-        });
+        UnitPanelUI.instance.SetUnitPanelInfo(Actions.Select(a => new UnitPanelUI.UnitInfo(a.Icon, a.Tooltip)).ToArray());
     }
 
     protected override void Awake()

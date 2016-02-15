@@ -3,12 +3,6 @@ using System.Collections;
 
 public abstract class IGameUnit : IEntity {
 
-    public abstract string[] Actions
-    {
-        get;
-        protected set;
-    }
-
     public abstract void UseAction(int action);
 
     public abstract void HoverAction(int action);
