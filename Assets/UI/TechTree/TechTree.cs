@@ -29,6 +29,7 @@ public class TechTree : MonoBehaviour {
 	void Start () {
         ItemDisplays = new Dictionary<ResearchItem, TechItem>();
         BuildTree(GameManager.instance.Research.ResearchItems);
+        gameObject.SetActive(false);
 	}
 	
 	// Update is called once per frame
@@ -52,6 +53,11 @@ public class TechTree : MonoBehaviour {
             techItem.Background.sprite = SelectedBackground;
             SelectedItem = techItem;
         }
+    }
+
+    public void ToggleActive()
+    {
+        gameObject.SetActive(!gameObject.activeSelf);
     }
 
     private void BuildTree(ResearchItem[] researchItems)
