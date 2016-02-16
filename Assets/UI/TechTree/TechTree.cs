@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 public class TechTree : MonoBehaviour {
 
@@ -63,6 +64,11 @@ public class TechTree : MonoBehaviour {
     private void BuildTree(ResearchItem[] researchItems)
     {
         Debug.Log("Build Research Tree");
+
+        bool[,] occupiedFields = new bool[50, 7];
+        foreach (var item in researchItems)
+            occupiedFields[item.X, item.Y] = true;
+
         foreach (var item in researchItems)
         {
             var displayItem = Instantiate(TechItemDisplayPrefab);
@@ -74,8 +80,10 @@ public class TechTree : MonoBehaviour {
             ItemDisplays.Add(item, ti);
             // create connections to children
             if (item.Children != null)
-                foreach (var child in item.Children)
-                    CreateLine(item.X, item.Y, child.X, child.Y);
+                foreach (var child in item.Children) {
+                    int distX = item.X - child.X - 1;
+                    CreateLine(item.X, item.Y, child.X, child.Y, distX == 0 ? true : Enumerable.Range(item.X + 1, child.X - 1).All(x => !occupiedFields[x, item.Y]));
+                }
             // show as available if on first layer
             if (item.X == 0)
                 ti.Background.sprite = AvailableBackground;
@@ -89,38 +97,43 @@ public class TechTree : MonoBehaviour {
     /// <param name="y1"></param>
     /// <param name="x2"></param>
     /// <param name="y2"></param>
-    private void CreateLine(int x1, int y1, int x2, int y2)
+    private void CreateLine(int x1, int y1, int x2, int y2, bool horizontalFirst)
     {
-        float distance1 = x2 - x1 - 1;
+        float distanceX = x2 - x1 - 1;
         var connectionHorizontal1 = Instantiate(TechLineHorizontal);
-        var transform = connectionHorizontal1.GetComponent<RectTransform>();
-        transform.SetParent(TechItemsContainer.transform);
-        transform.position = new Vector3(startX + x1 * gridX + 137, startY + y1 * gridY, 0);
+        var transformHorizontal1 = connectionHorizontal1.GetComponent<RectTransform>();
+        transformHorizontal1.SetParent(TechItemsContainer.transform);
+        transformHorizontal1.position = new Vector3(startX + x1 * gridX + 137, startY + y1 * gridY, 0);
 
         // case: just horizontal
         if (y2 - y1 == 0)
         {
-            transform.localScale = new Vector3(66 + distance1 * gridX, 1, 1);
+            transformHorizontal1.localScale = new Vector3(66 + distanceX * gridX, 1, 1);
         }
         else
         {
-            transform.localScale = new Vector3(23 + distance1 * gridX, 1, 1);
+            float distanceX1 = horizontalFirst ? distanceX : 0;
+            float distanceX2 = horizontalFirst ? 0 : distanceX;
+            transformHorizontal1.localScale = new Vector3(23 + distanceX1 * gridX, 1, 1);
+            float distance2 = Mathf.Abs(y2 - y1);
+            float verticalPosX = transformHorizontal1.position.x + transformHorizontal1.localScale.x + 18;
+            float verticalPosY = 0;
+
             // create a curve towards up or down
             if (y2 - y1 > 0)
             {
                 var connectionToDown = Instantiate(TechLineHorizontalDown);
                 var transformToDown = connectionToDown.GetComponent<RectTransform>();
                 transformToDown.SetParent(TechItemsContainer.transform);
-                transformToDown.position = new Vector3(transform.position.x + transform.localScale.x, transform.position.y + 2);
+                transformToDown.position = new Vector3(transformHorizontal1.position.x + transformHorizontal1.localScale.x, transformHorizontal1.position.y + 2);
                 // create vertical path
                 var connectionVertical = Instantiate(TechLineVertical);
                 var transformVertical = connectionVertical.GetComponent<RectTransform>();
                 transformVertical.SetParent(TechItemsContainer.transform);
-                float verticalPosX = transform.position.x + transform.localScale.x + 18;
-                float verticalPosY = transform.position.y - 18;
+                verticalPosY = transformHorizontal1.position.y - 18;
                 transformVertical.position = new Vector3(verticalPosX, verticalPosY);
-                transformVertical.localScale = new Vector3(1, -gridY - 2*18, 1);
-                verticalPosY -= -gridY - 2 * 18;
+                transformVertical.localScale = new Vector3(1, distance2 * -gridY - 2*18, 1);
+                verticalPosY -= distance2 * -gridY - 2 * 18;
                 // create second curve
                 var connectionToHorizontal = Instantiate(TechLineDownHorizontal);
                 var transformToHorizontal = connectionToHorizontal.GetComponent<RectTransform>();
@@ -129,25 +142,19 @@ public class TechTree : MonoBehaviour {
                 // create second horizontal part
                 verticalPosX += 18;
                 verticalPosY -= 18;
-                var connectionHorizontal2 = Instantiate(TechLineHorizontal);
-                var transformHorizontal2 = connectionHorizontal2.GetComponent<RectTransform>();
-                transformHorizontal2.SetParent(TechItemsContainer.transform);
-                transformHorizontal2.position = new Vector3(verticalPosX, verticalPosY, 0);
-                transformHorizontal2.localScale = new Vector3(23, 1, 1);
             }
             else
             {
                 var connectionToUp = Instantiate(TechLineHorizontalUp);
                 var transformToUp = connectionToUp.GetComponent<RectTransform>();
                 transformToUp.SetParent(TechItemsContainer.transform);
-                transformToUp.position = new Vector3(transform.position.x + transform.localScale.x, transform.position.y + 18);
+                transformToUp.position = new Vector3(transformHorizontal1.position.x + transformHorizontal1.localScale.x, transformHorizontal1.position.y + 18);
                 // create vertical path
                 var connectionVertical = Instantiate(TechLineVertical);
                 var transformVertical = connectionVertical.GetComponent<RectTransform>();
                 transformVertical.SetParent(TechItemsContainer.transform);
-                float verticalSizeY = -gridY - 2 * 18;
-                float verticalPosX = transform.position.x + transform.localScale.x + 18;
-                float verticalPosY = transform.position.y + 18 + verticalSizeY;
+                float verticalSizeY = distance2 * -gridY - 2 * 18;
+                verticalPosY = transformHorizontal1.position.y + 18 + verticalSizeY;
                 transformVertical.position = new Vector3(verticalPosX, verticalPosY);
                 transformVertical.localScale = new Vector3(1, verticalSizeY, 1);
                 // create second curve
@@ -159,12 +166,12 @@ public class TechTree : MonoBehaviour {
                 // create second horizontal part
                 verticalPosX += 18;
                 verticalPosY -= 2;
-                var connectionHorizontal2 = Instantiate(TechLineHorizontal);
-                var transformHorizontal2 = connectionHorizontal2.GetComponent<RectTransform>();
-                transformHorizontal2.SetParent(TechItemsContainer.transform);
-                transformHorizontal2.position = new Vector3(verticalPosX, verticalPosY, 0);
-                transformHorizontal2.localScale = new Vector3(23, 1, 1);
             }
+            var connectionHorizontal2 = Instantiate(TechLineHorizontal);
+            var transformHorizontal2 = connectionHorizontal2.GetComponent<RectTransform>();
+            transformHorizontal2.SetParent(TechItemsContainer.transform);
+            transformHorizontal2.position = new Vector3(verticalPosX, verticalPosY, 0);
+            transformHorizontal2.localScale = new Vector3(23 + distanceX2 * gridX, 1, 1);
         }
     }
 }
