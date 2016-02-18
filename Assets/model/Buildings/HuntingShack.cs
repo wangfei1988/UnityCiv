@@ -4,12 +4,7 @@ using UnityEngine.Events;
 using System.Collections.Generic;
 using System.Linq;
 
-public class HuntingShack : Phase1Building
+public class HuntingShack : Phase1TileImprovement
 {
-    protected override void Awake()
-    {
-        base.Awake();
-        Name = "Hunting Shack";
 
-    }
 }

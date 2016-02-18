@@ -10,9 +10,10 @@ public class Tile : GridObject, IHasNeighbours<Tile>
     public bool Passable;
     public TerrainType Type;
     public static Sprite[] Sprites;
-    public static GameObject TileValuesContainer;
+    public static GameObject TileValuesContainer = new GameObject("TileValues");
     public StrategicResource StrategicResource;
     public bool InPlayerTerritory = true;
+    public Dictionary<Resource, int> Yield;
 
     public enum TerrainType
     {
@@ -28,18 +29,19 @@ public class Tile : GridObject, IHasNeighbours<Tile>
     {
         Passable = true;
         Type = TerrainType.UNASSIGNED;
+        Yield = new Dictionary<Resource, int>()
+        {
+            { Food.i, 0 },
+            { Production.i, 0 }
+        };
     }
 
-    public Dictionary<Resource, int> GetTileResources()
+    public Dictionary<Resource, int> GetYield()
     {
         if (!InPlayerTerritory)
             return null;
 
-        return new Dictionary<Resource, int>()
-        {
-            { Food.i, 3 },
-            { Production.i, 2 }
-        };
+        return Yield;
     }
 
     /// <summary>
@@ -70,6 +72,36 @@ public class Tile : GridObject, IHasNeighbours<Tile>
     {
         if (tileResourceDisplay != null)
             tileResourceDisplay.SetActive(false);
+    }
+
+    public void SetTerrainType(TerrainType type)
+    {
+        if (Type != TerrainType.UNASSIGNED)
+            throw new InvalidOperationException("Can't do that... except you want to implement terrain forming");
+
+        switch(type)
+        {
+            case TerrainType.DRYEARTH:
+                Yield[Production.i] += 1;
+                break;
+            case TerrainType.DRYGRASS:
+                Yield[Food.i] += 1;
+                break;
+            case TerrainType.GRASS:
+                Yield[Food.i] += 2;
+                break;
+            case TerrainType.REDSTONE:
+                Yield[Production.i] += 1;
+                break;
+        }
+        Type = type;
+    }
+
+    public void SetStrategicResource(StrategicResource resource)
+    {
+        StrategicResource = resource;
+        Yield[Food.i] += resource.BaseYieldFood;
+        Yield[Production.i] += resource.BaseYieldProduction;
     }
 
     public GameObject Representation { get; set; }

@@ -24,8 +24,8 @@ public class LevelCreator : MonoBehaviour {
         for (var i = 0; i < rnd.Next(2,3); i++)
         {
             var el = board.ElementAt(rnd.Next(0, board.Values.Count - 1));
-            el.Value.Type = Tile.TerrainType.REDSTONE;
-            el.Value.AllNeighbours.ElementAt(rnd.Next(0, el.Value.AllNeighbours.Count() - 1)).Type = Tile.TerrainType.REDSTONE;
+            el.Value.SetTerrainType(Tile.TerrainType.REDSTONE);
+            el.Value.AllNeighbours.ElementAt(rnd.Next(0, el.Value.AllNeighbours.Count() - 1)).SetTerrainType(Tile.TerrainType.REDSTONE);
         }
 
         int amountRedstone = board.Values.Count(tl => tl.Type == Tile.TerrainType.REDSTONE);
@@ -50,20 +50,20 @@ public class LevelCreator : MonoBehaviour {
                 // max 30 redstone
                 if (amountSurroundingRedstone >= 2 && amountRedstone <= 30 && rnd.NextDouble() <= 0.5d + 1d / amountRedstone)
                 {
-                    tile.Type = Tile.TerrainType.REDSTONE;
+                    tile.SetTerrainType(Tile.TerrainType.REDSTONE);
                     amountRedstone++;
                 }
                 else
                 {
                     if (rnd.NextDouble() < 0.1)
                     {
-                        tile.Type = Tile.TerrainType.DRYGRASS;
+                        tile.SetTerrainType(Tile.TerrainType.DRYGRASS);
 
                         PlaceTreesOnTile(gm, rnd, t, worldpos, terrainSize, tilecenter);
                     }
                     else
                     {
-                        tile.Type = Tile.TerrainType.GRASS;
+                        tile.SetTerrainType(Tile.TerrainType.GRASS);
 
                     }
                 }

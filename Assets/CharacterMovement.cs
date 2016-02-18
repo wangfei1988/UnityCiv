@@ -282,6 +282,12 @@ public class CharacterMovement : MonoBehaviour
         }
     }
 
+    public void CancelSuggestedMove()
+    {
+        RemainingPath = new List<Tile>();
+        RemoveWayMarkers();
+    }
+
     private void RemoveNextWayMarker()
     {
         if (GridManager.instance.selectedUnit == gameObject && suggestedMovePathLineObjects[0].activeSelf)

@@ -38,7 +38,7 @@ public class TileValueDisplay : MonoBehaviour {
         }
         usedElements = new List<Image>();
 
-        var resources = tile.GetTileResources();
+        var resources = tile.GetYield();
         // if there's a strategic resource, display its image
         var strategic = resources.FirstOrDefault(r => r.Key is StrategicResource);
         if (strategic.Value == 0)

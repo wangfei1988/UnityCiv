@@ -5,32 +5,25 @@ using System.Collections.Generic;
 using System.Linq;
 
 public class Worker : IGameUnit {
-    
-    public GameObject HuntingShackPrefab;
-    public Sprite IconHuntingShack;
+
     public AudioClip WorkerStartWork;
-    
     protected CharacterMovement movement;
 
-    private static List<Phase1Building> Actions = new List<Phase1Building>();
+    [HideInInspector]
+    public Phase1TileImprovement Producing;
+    [HideInInspector]
+    public int ProducingRoundsLeft;
+    private GameObject ProducingScaffold;
+
+    public static List<Phase1TileImprovement> Actions = new List<Phase1TileImprovement>();
 
     public override void UseAction(int action)
     {
-        Actions.ElementAt(action);
-        /*if (action == 0)
-        {
-            if (movement.ExpendMovementPoints(2))
-            {
-                GameObject village = Instantiate(VillagePrefab);
-                village.transform.position = transform.position;
-                var gb = village.GetComponent<IGameBuilding>();
-                gb.Location = movement.curTile;
-                TimeManager.instance.NoMoreOrdersNeeded(this);
-                RemoveCharacter();
-                gb.audioSource.PlayOneShot(ExpandAudioClip, 1f);
-                LeaveAction(_settlementHexArea);
-            }
-        }*/
+        Producing = Actions[action];
+        ProducingRoundsLeft = Producing.BuildDurationRounds;
+        movement.CancelSuggestedMove();
+        //TODO: place ProducingScaffold
+        audioSource.PlayOneShot(WorkerStartWork);
     }
 
     public override void Select()
@@ -49,11 +42,7 @@ public class Worker : IGameUnit {
 
     void Update()
     {
-        if (_settlementHexArea > -1 && _settlementHexAreaPos != movement.curTile)
-        {
-            GridManager.instance.DrawHexArea(_settlementHexAreaPos, 2, 0, Tile.TileColorPresets.WhiteTransparent);
-            HoverAction(_settlementHexArea);
-        }
+
     }
 
     // Use this for initialization
@@ -62,28 +51,58 @@ public class Worker : IGameUnit {
         base.Start();
     }
 
-    private int _settlementHexArea = -1;
-    private Tile _settlementHexAreaPos = null;
-
     public override void HoverAction(int action)
     {
-        GridManager.instance.DrawHexArea(movement.curTile, 2, 1, Tile.TileColorPresets.Area);
-        _settlementHexArea = action;
-        _settlementHexAreaPos = movement.curTile;
+
     }
 
     public override void LeaveAction(int action)
     {
-        GridManager.instance.DrawHexArea(movement.curTile, 2, 0, Tile.TileColorPresets.WhiteTransparent);
-        _settlementHexArea = -1;
+
     }
 
     public override bool NeedsOrders()
     {
-        if (movement.RemainingPath.Count > 1 || movement.MovementPointsRemaining == 0)
+        if (movement.RemainingPath.Count > 1 || Producing != null || movement.MovementPointsRemaining == 0)
         {
             return false;
         }
         return true;
+    }
+
+    void OnEnable()
+    {
+        EventManager.StartListening("NextRound", nextRoundListener);
+        EventManager.StartListening("NextRoundRequest", nextRoundRequestListener);
+    }
+
+    void OnDisable()
+    {
+        EventManager.StopListening("NextRound", nextRoundListener);
+        EventManager.StopListening("NextRoundRequest", nextRoundRequestListener);
+    }
+
+    private void nextRoundRequestListener()
+    {
+        if (Producing != null && movement.ExpendMovementPoints(2))
+        {
+            // perform some building action
+            // TODO: Animation
+            ProducingRoundsLeft--;
+            if (ProducingRoundsLeft <= 0)
+            {
+                //TODO: Remove ProducingScaffold
+                var newImprovement = Instantiate(Producing);
+                newImprovement.transform.position = new Vector3(movement.curTilePos.x, movement.curTilePos.y, movement.curTilePos.z);
+                newImprovement.Location = movement.curTile;
+                GameManager.instance.AddTileImprovement(newImprovement);
+            }
+        }
+    }
+
+    private void nextRoundListener()
+    {
+        //if (GridManager.instance.selectedUnit == gameObject)
+            //TODO: Update icon progress display of production
     }
 }

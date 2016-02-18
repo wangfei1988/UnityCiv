@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.UI;
 using System.Linq;
+using System;
 
 public class GameManager : MonoBehaviour
 {
@@ -24,6 +25,8 @@ public class GameManager : MonoBehaviour
     }
 
     public Sprite[] ResearchImages;
+
+    public List<Phase1TileImprovement> Phase1TileImprovements;
 
     public Research Research;
 
@@ -52,12 +55,11 @@ public class GameManager : MonoBehaviour
 
         AvailableBuildItems = new List<BuildItem>(AllBuildItems);
 
-
+        // background music
         UIAudioSource.PlayOneShot(MenuMusic, 0.8f);
-        
-        //testwise
-        Tile.TileValuesContainer = new GameObject("TileValues");
-        //ToggleResourceDisplay();
+
+        // assign tile improvements to worker
+        Worker.Actions.Add(Phase1TileImprovements[0]);
     }
 
     private bool tileResourcesDisplayed = false;
@@ -71,5 +73,16 @@ public class GameManager : MonoBehaviour
                 t.HideTileResources();
         }
         tileResourcesDisplayed = !tileResourcesDisplayed;
+    }
+
+    public void AddTileImprovement(Phase1TileImprovement improvement)
+    {
+        GridManager.instance.allTileImprovements.Add(improvement);
+        // TODO: Change yield of affected tiles
+    }
+
+    public void RemoveTileImprovement(Phase1TileImprovement improvement)
+    {
+        throw new NotImplementedException();
     }
 }

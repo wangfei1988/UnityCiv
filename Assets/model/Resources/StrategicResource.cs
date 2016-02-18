@@ -9,4 +9,6 @@ public class StrategicResource : Resource
     public int MinAmount;
     public int MaxAmount;
     public Tile.TerrainType RequiredType;
+    public int BaseYieldFood;
+    public int BaseYieldProduction;
 }

@@ -31,10 +31,16 @@ public class GridManager : MonoBehaviour
     //List to hold "Lines" indicating the path
     List<GameObject> path;
 
+    [HideInInspector]
     public GameObject selectedUnit = null;
+    [HideInInspector]
     public GameObject selectedBuilding = null;
+    [HideInInspector]
     public List<GameObject> allUnits = new List<GameObject>();
+    [HideInInspector]
     public List<GameObject> allBuildings = new List<GameObject>();
+    [HideInInspector]
+    public List<Phase1TileImprovement> allTileImprovements = new List<Phase1TileImprovement>();
 
     public List<RectTransform> uiElements = new List<RectTransform>();
     public List<Vector3[]> worldCorners = new List<Vector3[]>();
