@@ -7,12 +7,13 @@ public class UnitPanelUI : MonoBehaviour
     public static UnitPanelUI instance = null;
     
     public Button[] Buttons;
+    public Image[] ButtonSubImages;
 
     void Awake()
     {
         instance = this;
         gameObject.SetActive(false);
-        Buttons = GetComponentsInChildren<Button>();
+        //Buttons = GetComponentsInChildren<Button>();
     }
 
     public class UnitInfo {
@@ -30,19 +31,18 @@ public class UnitPanelUI : MonoBehaviour
         if (infos != null)
         {
             gameObject.SetActive(true);
-            for (int btn = 0; btn < Buttons.Length; btn++)
+            for (int i = 0; i < Buttons.Length; i++)
             {
                 // the button will be used
-                if (btn < infos.Length)
+                if (i < infos.Length)
                 {
-                    var button = Buttons[btn];
+                    var button = Buttons[i];
                     button.gameObject.SetActive(true);
-                    var btnImg = (Image)button.targetGraphic;
-                    btnImg.sprite = infos[btn].image;
+                    ButtonSubImages[i].sprite = infos[i].image;
                 }
                 else
                 {
-                    Buttons[btn].gameObject.SetActive(false);
+                    Buttons[i].gameObject.SetActive(false);
                 }
             }
         }

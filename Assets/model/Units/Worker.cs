@@ -13,7 +13,7 @@ public class Worker : IGameUnit {
     public Phase1TileImprovement Producing;
     [HideInInspector]
     public int ProducingRoundsLeft;
-    private GameObject ProducingScaffold;
+    private GameObject ProductionScaffold;
 
     public static List<Phase1TileImprovement> Actions = new List<Phase1TileImprovement>();
 
@@ -22,7 +22,7 @@ public class Worker : IGameUnit {
         Producing = Actions[action];
         ProducingRoundsLeft = Producing.BuildDurationRounds;
         movement.CancelSuggestedMove();
-        //TODO: place ProducingScaffold
+        ProductionScaffold = Instantiate(GameManager.instance.ScaffoldPrefab);
         audioSource.PlayOneShot(WorkerStartWork);
     }
 
@@ -91,7 +91,7 @@ public class Worker : IGameUnit {
             ProducingRoundsLeft--;
             if (ProducingRoundsLeft <= 0)
             {
-                //TODO: Remove ProducingScaffold
+                Destroy(ProductionScaffold);
                 var newImprovement = Instantiate(Producing);
                 newImprovement.transform.position = new Vector3(movement.curTilePos.x, movement.curTilePos.y, movement.curTilePos.z);
                 newImprovement.Location = movement.curTile;

@@ -26,6 +26,8 @@ public class GameManager : MonoBehaviour
 
     public Sprite[] ResearchImages;
 
+    public GameObject ScaffoldPrefab;
+
     public List<Phase1TileImprovement> Phase1TileImprovements;
 
     public Research Research;
