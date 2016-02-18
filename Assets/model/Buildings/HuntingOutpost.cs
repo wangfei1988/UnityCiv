@@ -4,7 +4,7 @@ using UnityEngine.Events;
 using System.Collections.Generic;
 using System.Linq;
 
-public class HuntingShack : Phase1TileImprovement
+public class HuntingOutpost : Phase1TileImprovement
 {
 
 }

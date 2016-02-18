@@ -275,7 +275,7 @@ public class CharacterMovement : MonoBehaviour
         // hide the rest of the (still visible) movement points
         if (suggestedMovePathLineObjects.Count >= pathlist.Count)
         {
-            for (int s = pathlist.Count - 1; s < suggestedMovePathLineObjects.Count; s++)
+            for (int s = Math.Max(pathlist.Count - 1, 0); s < suggestedMovePathLineObjects.Count; s++)
             {
                 suggestedMovePathLineObjects[s].SetActive(false);
             }
