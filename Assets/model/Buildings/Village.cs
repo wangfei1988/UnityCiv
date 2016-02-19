@@ -60,7 +60,6 @@ public class Village : IGameBuilding
     {
         base.Start();
         buildItems.Add(GameManager.instance.AvailableBuildItems.First());
-        buildItems.Add(GameManager.instance.AvailableBuildItems.First(f => f.Title == "Animal Husbandry"));
     }
 
     protected override void Awake()
@@ -88,18 +87,11 @@ public class Village : IGameBuilding
             // is the item completed?
             if (Producing.Produced >= Producing.Item.ProductionCosts)
             {
-                if (Producing.Item.Produces is ResearchItem)
+                GameObject produces = (GameObject)Producing.Item.Produces;
+                var movement = produces.GetComponent<CharacterMovement>();
+                if (movement != null)
                 {
-                    GameManager.instance.Research.FinishedResearching(Producing.Item.Title);
-                }
-                else
-                {
-                    GameObject produces = (GameObject)Producing.Item.Produces;
-                    var movement = produces.GetComponent<CharacterMovement>();
-                    if (movement != null)
-                    {
-                        GridManager.instance.Spawn(produces, new Vector2(Location.X + Location.Y / 2, Location.Y));
-                    }
+                    GridManager.instance.Spawn(produces, new Vector2(Location.X + Location.Y / 2, Location.Y));
                 }
                 Producing = null;
                 TimeManager.instance.NeedNewOrders(this);

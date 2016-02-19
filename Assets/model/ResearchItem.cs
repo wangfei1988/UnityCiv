@@ -8,10 +8,12 @@ public class ResearchItem : Object {
     public Sprite Image;
     public string Tooltip;
     public float ProductionCosts;
+    // LeadsTo can be buildItem, 
     public List<Object> LeadsTo;
     public List<ResearchItem> Children;
     public int X;
     public int Y;
+    public bool Completed;
 
     public override bool Equals(System.Object obj)
     {

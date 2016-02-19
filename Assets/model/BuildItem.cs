@@ -2,7 +2,7 @@
 using System.Collections;
 
 [System.Serializable]
-public class BuildItem {
+public class BuildItem : Object {
     public string Title;
     public Sprite Image;
     public string Tooltip;

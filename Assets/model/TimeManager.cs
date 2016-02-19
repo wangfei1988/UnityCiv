@@ -19,6 +19,7 @@ public class TimeManager : MonoBehaviour
     public Sprite NextRoundNextSprite;
     public Sprite NextRoundUnitSprite;
     public Sprite NextRoundBuildingSprite;
+    public Sprite NextRoundResearchSprite;
 
     public int Round
     {
@@ -32,8 +33,7 @@ public class TimeManager : MonoBehaviour
 
     private DateTime nextRoundStartsAt = DateTime.MaxValue;
     private List<IEntity> entitiesAwaitingOrders = new List<IEntity>();
-
-    // TODO: Gather event handles from "PerformingAction", continue with round if all of them completed.
+    
     private int actionsStillBeingPerformed = 0;
 
     void Awake()
@@ -45,7 +45,6 @@ public class TimeManager : MonoBehaviour
     void Start()
     {
         Cursor.SetCursor(GameManager.instance.PointerNormal, new Vector2(1, 3), CursorMode.Auto);
-        
     }
     
     void Update()
@@ -54,21 +53,31 @@ public class TimeManager : MonoBehaviour
         {
             nextRoundRequested = false;
 
-            if (entitiesAwaitingOrders.Count == 0)
+            if (GameManager.instance.Research.HasResearchSelected())
             {
-                UpdateEntitiesAwaitingOrders();
-            }
 
-            if (entitiesAwaitingOrders.Count == 0)
-            {
-                nextRoundStartsAt = DateTime.Now.AddSeconds(0.5);
-                actionsStillBeingPerformed = 0;
-                EventManager.TriggerEvent("NextRoundRequest");
+                if (entitiesAwaitingOrders.Count == 0)
+                {
+                    UpdateEntitiesAwaitingOrders();
+                }
+
+                if (entitiesAwaitingOrders.Count == 0)
+                {
+                    nextRoundStartsAt = DateTime.Now.AddSeconds(0.5);
+                    actionsStillBeingPerformed = 0;
+                    EventManager.TriggerEvent("NextRoundRequest");
+                }
+                else
+                {
+                    // select the first unit from the list that still requires action
+                    SelectNextAwaitingOrder();
+                }
+
             }
             else
             {
-                // select the first unit from the list that still requires action
-                SelectNextAwaitingOrder();
+                if (!GameManager.instance.Research.TechTree.gameObject.activeSelf)
+                    GameManager.instance.Research.TechTree.ToggleActive();
             }
         }
 
@@ -99,7 +108,7 @@ public class TimeManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Call this if an entity needs no more orders for this round
+    /// An entity can call this if it needs no more orders for this round
     /// </summary>
     /// <param name="entity"></param>
     public void NoMoreOrdersNeeded(IEntity entity)

@@ -48,13 +48,6 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        // add all researches as build items
-        for (int i = 0; i < Research.ResearchItems.Length; i++)
-        {
-            var research = Research.ResearchItems[i];
-            AllBuildItems.Add(new BuildItem(research.Title, research.Image, research.Tooltip, research.ProductionCosts, 0, research));
-        }
-
         AvailableBuildItems = new List<BuildItem>(AllBuildItems);
 
         // background music

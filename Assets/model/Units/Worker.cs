@@ -73,13 +73,11 @@ public class Worker : IGameUnit {
 
     void OnEnable()
     {
-        EventManager.StartListening("NextRound", nextRoundListener);
         EventManager.StartListening("NextRoundRequest", nextRoundRequestListener);
     }
 
     void OnDisable()
     {
-        EventManager.StopListening("NextRound", nextRoundListener);
         EventManager.StopListening("NextRoundRequest", nextRoundRequestListener);
     }
 
@@ -98,13 +96,9 @@ public class Worker : IGameUnit {
                 newImprovement.Location = movement.curTile;
                 GameManager.instance.AddTileImprovement(newImprovement);
                 Producing = null;
+                //if (GridManager.instance.selectedUnit == gameObject)
+                    //TODO: Update icon progress display of production
             }
         }
-    }
-
-    private void nextRoundListener()
-    {
-        //if (GridManager.instance.selectedUnit == gameObject)
-            //TODO: Update icon progress display of production
     }
 }

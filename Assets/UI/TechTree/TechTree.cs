@@ -26,33 +26,48 @@ public class TechTree : MonoBehaviour {
     private Dictionary<ResearchItem, TechItem> ItemDisplays;
     private TechItem SelectedItem;
 
+    void Awake()
+    {
+        GameManager.instance.Research.TechTree = this;
+    }
+
 	// Use this for initialization
-	void Start () {
+	void Start() {
         ItemDisplays = new Dictionary<ResearchItem, TechItem>();
         BuildTree(GameManager.instance.Research.ResearchItems);
+        foreach (var completedResearch in GameManager.instance.Research.ResearchItems.Where(r => r.Completed))
+            SetFinished(completedResearch);
         gameObject.SetActive(false);
-	}
-	
-	// Update is called once per frame
-	void Update () {
-	    
 	}
 
     public void SetFinished(ResearchItem item)
     {
         ItemDisplays[item].Background.sprite = FinishedBackground;
+        item.Completed = true;
+
+        foreach (var child in item.Children)
+        {
+            // check for each tile whether it becomes available, i.e. whether all parents have been completed
+            if (!GameManager.instance.Research.ResearchItems.Where(r => r.Children != null && r.Children.Contains(child)).Any(r => !r.Completed))
+            {
+                ItemDisplays[child].Background.sprite = AvailableBackground;
+            }
+        }
     }
 
     public void SelectItem(TechItem techItem)
     {
         if (techItem.Background.sprite == AvailableBackground)
         {
+            GameManager.instance.Research.SetCurrentResearch(techItem.ResearchItem);
+
             if (SelectedItem != null)
             {
                 SelectedItem.Background.sprite = AvailableBackground;
             }
             techItem.Background.sprite = SelectedBackground;
             SelectedItem = techItem;
+
         }
     }
 
@@ -84,9 +99,6 @@ public class TechTree : MonoBehaviour {
                     int distX = item.X - child.X - 1;
                     CreateLine(item.X, item.Y, child.X, child.Y, distX == 0 ? true : Enumerable.Range(item.X + 1, child.X - 1).All(x => !occupiedFields[x, item.Y]));
                 }
-            // show as available if on first layer
-            if (item.X == 0)
-                ti.Background.sprite = AvailableBackground;
         }
     }
 
