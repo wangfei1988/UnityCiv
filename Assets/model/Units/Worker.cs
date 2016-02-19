@@ -23,6 +23,7 @@ public class Worker : IGameUnit {
         ProducingRoundsLeft = Producing.BuildDurationRounds;
         movement.CancelSuggestedMove();
         ProductionScaffold = Instantiate(GameManager.instance.ScaffoldPrefab);
+        ProductionScaffold.transform.position = new Vector3(movement.curTilePos.x, movement.curTilePos.y, movement.curTilePos.z);
         audioSource.PlayOneShot(WorkerStartWork);
     }
 
@@ -96,6 +97,7 @@ public class Worker : IGameUnit {
                 newImprovement.transform.position = new Vector3(movement.curTilePos.x, movement.curTilePos.y, movement.curTilePos.z);
                 newImprovement.Location = movement.curTile;
                 GameManager.instance.AddTileImprovement(newImprovement);
+                Producing = null;
             }
         }
     }
