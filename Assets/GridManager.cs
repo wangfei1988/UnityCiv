@@ -291,46 +291,54 @@ public class GridManager : MonoBehaviour
                     if (selectedTile != null && selectedTile != newSelectedTile) selectedTile.Representation.GetComponent<SpriteRenderer>().color = hex_default_color;
                     selectedTile = newSelectedTile;
                     selectedTile.Representation.GetComponent<SpriteRenderer>().color = Color.red;
-                    if (Input.GetMouseButton(1))
-                    {
-                        if (selectedUnit != null) selectedUnit.GetComponent<CharacterMovement>().SuggestMove(coord);
-                    }
-                    // the user wants to move there
-                    else if (Input.GetMouseButtonUp(1))
-                    {
-                        if (selectedUnit != null) selectedUnit.GetComponent<CharacterMovement>().MoveTo(coord);
-                    }
-                    // does the user want to select something?
-                    else if (Input.GetMouseButtonDown(0))
-                    {
-                        GameObject selected = null;
 
-                        //get all units from that tile
-                        var entitiesOnTile = allUnits.Where(u => u.GetComponent<CharacterMovement>().curTile == selectedTile);
-                        entitiesOnTile = entitiesOnTile.Union(allBuildings.Where(b => b.GetComponent<IGameBuilding>().Location == selectedTile));
-                        if (entitiesOnTile.Count() > 0)
+                    if (!Village.InBuildMode)
+                    {
+                        if (Input.GetMouseButton(1))
                         {
-                            selected = entitiesOnTile.First();
-                            entitiesOnTile.First().GetComponent<IEntity>().Select();
+                            if (selectedUnit != null) selectedUnit.GetComponent<CharacterMovement>().SuggestMove(coord);
                         }
+                        // the user wants to move there
+                        else if (Input.GetMouseButtonUp(1))
+                        {
+                            if (selectedUnit != null) selectedUnit.GetComponent<CharacterMovement>().MoveTo(coord);
+                        }
+                        // does the user want to select something?
+                        else if (Input.GetMouseButtonDown(0))
+                        {
+                            GameObject selected = null;
 
-                        // If nothing is selected we'll leave the current unit selected, but we can get rid of the building!
-                        // There will always be a unit selected, if possible
-                        if (selected == null)
-                        {
-                            //UnitPanelUI.instance.SetUnitPanelInfo(null);
-                            BuildingPanelUI.instance.SetBuildItems(null, 0);
-                            selectedBuilding = null;
-                            if (selectedUnit != null) selectedUnit.GetComponent<IEntity>().Select();
+                            //get all units from that tile
+                            var entitiesOnTile = allUnits.Where(u => u.GetComponent<CharacterMovement>().curTile == selectedTile);
+                            entitiesOnTile = entitiesOnTile.Union(allBuildings.Where(b => b.GetComponent<IGameBuilding>().Location == selectedTile));
+                            if (entitiesOnTile.Count() > 0)
+                            {
+                                selected = entitiesOnTile.First();
+                                entitiesOnTile.First().GetComponent<IEntity>().Select();
+                            }
+
+                            // If nothing is selected we'll leave the current unit selected, but we can get rid of the building!
+                            // There will always be a unit selected, if possible
+                            if (selected == null)
+                            {
+                                //UnitPanelUI.instance.SetUnitPanelInfo(null);
+                                BuildingPanelUI.instance.SetBuildItems(null, 0);
+                                selectedBuilding = null;
+                                if (selectedUnit != null) selectedUnit.GetComponent<IEntity>().Select();
+                            }
+                            else if (allBuildings.Contains(selected))
+                            {
+                                UnitPanelUI.instance.SetUnitPanelInfo(null);
+                            }
+                            else
+                            {
+                                BuildingPanelUI.instance.SetBuildItems(null, 0);
+                            }
                         }
-                        else if (allBuildings.Contains(selected))
-                        {
-                            UnitPanelUI.instance.SetUnitPanelInfo(null);
-                        }
-                        else
-                        {
-                            BuildingPanelUI.instance.SetBuildItems(null, 0);
-                        }
+                    }
+                    else
+                    {
+                        Village.BuildModeHoveredTile = selectedTile;
                     }
                 }
                 else
@@ -369,7 +377,7 @@ public class GridManager : MonoBehaviour
         return line;
     }*/
 
-    public List<Tile> DrawHexArea(Tile center, int distance, int sprite, Tile.TileColorPresets color)
+    public List<Tile> GetHexArea(Tile center, int distance)
     {
         List<Tile> results = new List<Tile>();
         var cubecenter = hex_to_cube(new Vector2(center.X, center.Y));
@@ -382,10 +390,17 @@ public class GridManager : MonoBehaviour
                 if (board.TryGetValue(new Point((int)(pos.x + 0.1), (int)(pos.y + 0.1)), out tile))
                 {
                     results.Add(tile);
-                    tile.SetLooks(sprite, color);
                 }
             }
         return results;
+    }
+
+    public List<Tile> DrawHexArea(Tile center, int distance, int sprite, Tile.TileColorPresets color)
+    {
+        var area = GetHexArea(center, distance);
+        foreach (var tile in area)
+            tile.SetLooks(sprite, color);
+        return area;
     }
 
     private bool isMouseOverUI(Vector3[] worldCorners, Vector2 mousePosition)

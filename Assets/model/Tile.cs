@@ -12,7 +12,7 @@ public class Tile : GridObject, IHasNeighbours<Tile>
     public static Sprite[] Sprites;
     public static GameObject TileValuesContainer = new GameObject("TileValues");
     public StrategicResource StrategicResource;
-    public bool InPlayerTerritory = true;
+    public bool InPlayerTerritory = false;
     public Dictionary<Resource, int> Yield;
 
     public enum TerrainType

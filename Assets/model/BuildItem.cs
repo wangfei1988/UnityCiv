@@ -10,7 +10,7 @@ public class BuildItem {
     public string Tooltip;
     public float ProductionCosts;
     public float PurchaseCosts;
-    public Object Produces;
+    public GameObject Produces;
     public string ProducesAssetPath;
 
     /// <summary>

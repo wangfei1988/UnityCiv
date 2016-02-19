@@ -7,6 +7,11 @@ using UnityEngine.Events;
 
 public class Village : IGameBuilding
 {
+    public static bool InBuildMode;
+    public static Tile BuildModeHoveredTile;
+    private Phase1Building BuildModeBuilding;
+    private BuildItem BuildModeBuildItem;
+
     public override float ProductionOutput
     {
         get;
@@ -44,9 +49,55 @@ public class Village : IGameBuilding
 
     public override void Produce(BuildItem item)
     {
-        Producing = new BuildOrder(item, 0);
-        TimeManager.instance.NoMoreOrdersNeeded(this);
+        item.LoadObject();
+        var b = item.Produces.GetComponent<Phase1Building>();
+
+        if (b != null)
+        {
+            // first the player has to select a location where to build
+            InBuildMode = true;
+            BuildModeBuilding = Instantiate(b);
+            BuildModeBuildItem = item;
+        }
+        else
+        {
+            Producing = new BuildOrder(item, 0);
+            TimeManager.instance.NoMoreOrdersNeeded(this);
+        }
         Debug.Log("Producing now " + item.Title);
+    }
+
+    private Tile lastTile;
+    void Update()
+    {
+        if (BuildModeBuilding != null)
+        {
+            if (lastTile != BuildModeHoveredTile)
+            {
+                var adjacencyCheck = GridManager.instance.GetHexArea(BuildModeHoveredTile, BuildModeBuilding.Range);
+                bool buildable = adjacencyCheck.Any(a => a.InPlayerTerritory);
+                BuildModeBuilding.SetColor(buildable ? Phase1Building.ColorPresets.Green : Phase1Building.ColorPresets.Red);
+                lastTile = BuildModeHoveredTile;
+                BuildModeBuilding.transform.position = GridManager.instance.calcWorldCoord(new Vector2(lastTile.X + lastTile.Y / 2, lastTile.Y));
+            }
+
+            if (Input.GetMouseButtonDown(0))
+            {
+                var adjacencyCheck = GridManager.instance.GetHexArea(BuildModeHoveredTile, BuildModeBuilding.Range);
+                bool buildable = adjacencyCheck.Any(a => a.InPlayerTerritory);
+                // if at least one tile in or near the area is already player territory
+                if (buildable)
+                {
+                    Producing = new BuildOrder(BuildModeBuildItem, 0);
+                    TimeManager.instance.NoMoreOrdersNeeded(this);
+                }
+            }
+            else if (Input.GetMouseButtonDown(1))
+            {
+                Destroy(BuildModeBuilding);
+                InBuildMode = false;
+            }
+        }
     }
 
     public override void Select()
@@ -59,7 +110,8 @@ public class Village : IGameBuilding
     protected override void Start()
     {
         base.Start();
-        buildItems.Add(GameManager.instance.AvailableBuildItems.First());
+        for (int i = 0; i < 2; i ++)
+            buildItems.Add(GameManager.instance.AvailableBuildItems[i]);
 
         foreach (var item in buildItems)
             item.LoadIcon();

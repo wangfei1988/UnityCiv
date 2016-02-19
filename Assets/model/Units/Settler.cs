@@ -26,6 +26,8 @@ public class Settler : IGameUnit
                 RemoveCharacter();
                 gb.audioSource.PlayOneShot(ExpandAudioClip, 1f);
                 LeaveAction(_settlementHexArea);
+                foreach (var t in GridManager.instance.GetHexArea(gb.Location, 2))
+                    t.InPlayerTerritory = true;
             }
         }
     }
