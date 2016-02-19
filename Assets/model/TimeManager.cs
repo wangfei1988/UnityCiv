@@ -76,8 +76,8 @@ public class TimeManager : MonoBehaviour
             }
             else
             {
-                if (!GameManager.instance.Research.TechTree.gameObject.activeSelf)
-                    GameManager.instance.Research.TechTree.ToggleActive();
+                if (!TechTree.instance.gameObject.activeSelf)
+                    TechTree.instance.ToggleActive();
             }
         }
 

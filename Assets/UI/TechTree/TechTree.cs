@@ -26,9 +26,11 @@ public class TechTree : MonoBehaviour {
     private Dictionary<ResearchItem, TechItem> ItemDisplays;
     private TechItem SelectedItem;
 
+    public static TechTree instance;
+
     void Awake()
     {
-        GameManager.instance.Research.TechTree = this;
+        instance = this;
     }
 
 	// Use this for initialization

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 using System.Linq;
 using System;
+using UnityEditor;
 
 public class GameManager : MonoBehaviour
 {
@@ -14,15 +15,21 @@ public class GameManager : MonoBehaviour
     public AudioClip Click1;
     public AudioClip MenuMusic;
 
-    public List<BuildItem> AllBuildItems;
-
     public GameObject TileValueDisplayPrefab;
 
+    [HideInInspector]
     public List<BuildItem> AvailableBuildItems
     {
         get;
         private set;
     }
+
+    [HideInInspector]
+    public static List<BuildItem> AllBuildItems = new List<BuildItem>()
+    {
+        new BuildItem("Worker", "Icons/icon_worker", "Produce a worker", 100, 100, "Prefabs/Worker"),
+        new BuildItem("Hunting Shack", "Icons/hunting_shack", "Build a hunting shack", 10, 10, "Prefabs/Building_HuntingShack")
+    };
 
     public Sprite[] ResearchImages;
 
@@ -52,6 +59,8 @@ public class GameManager : MonoBehaviour
 
         // background music
         UIAudioSource.PlayOneShot(MenuMusic, 0.8f);
+
+        Research.Start();
 
         // assign tile improvements to worker
         Worker.Actions.Add(Phase1TileImprovements[0]);

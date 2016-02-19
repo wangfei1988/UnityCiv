@@ -60,6 +60,9 @@ public class Village : IGameBuilding
     {
         base.Start();
         buildItems.Add(GameManager.instance.AvailableBuildItems.First());
+
+        foreach (var item in buildItems)
+            item.LoadIcon();
     }
 
     protected override void Awake()
@@ -87,6 +90,9 @@ public class Village : IGameBuilding
             // is the item completed?
             if (Producing.Produced >= Producing.Item.ProductionCosts)
             {
+                if (Producing.Item.Produces == null)
+                    Producing.Item.LoadObject();
+
                 GameObject produces = (GameObject)Producing.Item.Produces;
                 var movement = produces.GetComponent<CharacterMovement>();
                 if (movement != null)

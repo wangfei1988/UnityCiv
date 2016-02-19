@@ -46,8 +46,7 @@ public class Research {
             Y = 2
         }
     };
-
-    public TechTree TechTree;
+    
     // How much Research does the player complete per round?
     public int ResearchProduction;
 
@@ -70,7 +69,10 @@ public class Research {
         ResearchItems[0].Children = new List<ResearchItem>() { ResearchItems[1], ResearchItems[2] };
         ResearchItems[1].Children = new List<ResearchItem>() { ResearchItems[3] };
         ResearchItems[2].Children = new List<ResearchItem>() { ResearchItems[3] };
+    }
 
+    public void Start()
+    {
         // complete first research by artificially calling the next round listener
         CurrentResearch = ResearchItems.First();
         CurrentResearch.ProductionCosts += ResearchProduction;
@@ -98,7 +100,7 @@ public class Research {
         if (CurrentResearch.ProductionCosts <= 0)
         {
             CurrentResearch.Completed = true;
-            TechTree.SetFinished(CurrentResearch);
+            TechTree.instance.SetFinished(CurrentResearch);
             if (CurrentResearch.LeadsTo != null)
             {
                 foreach (var lt in CurrentResearch.LeadsTo)
