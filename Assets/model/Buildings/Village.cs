@@ -7,9 +7,12 @@ using UnityEngine.Events;
 
 public class Village : IGameBuilding
 {
+    public GameObject Scaffold;
+
     public static bool InBuildMode;
     public static Tile BuildModeHoveredTile;
     private Phase1Building BuildModeBuilding;
+    private GameObject BuildModeScaffold;
     private BuildItem BuildModeBuildItem;
 
     public override float ProductionOutput
@@ -89,12 +92,17 @@ public class Village : IGameBuilding
                 if (buildable)
                 {
                     Producing = new BuildOrder(BuildModeBuildItem, 0);
+                    BuildModeScaffold = Instantiate(Scaffold);
+                    BuildModeScaffold.transform.position = BuildModeBuilding.transform.position;
+                    Destroy(BuildModeBuilding.gameObject);
+                    BuildModeBuilding = null;
                     TimeManager.instance.NoMoreOrdersNeeded(this);
                 }
             }
             else if (Input.GetMouseButtonDown(1))
             {
-                Destroy(BuildModeBuilding);
+                Destroy(BuildModeBuilding.gameObject);
+                BuildModeBuilding = null;
                 InBuildMode = false;
             }
         }
@@ -146,10 +154,22 @@ public class Village : IGameBuilding
                     Producing.Item.LoadObject();
 
                 GameObject produces = (GameObject)Producing.Item.Produces;
-                var movement = produces.GetComponent<CharacterMovement>();
-                if (movement != null)
+                var building = produces.GetComponent<Phase1Building>();
+                if (building != null)
                 {
-                    GridManager.instance.Spawn(produces, new Vector2(Location.X + Location.Y / 2, Location.Y));
+                    var go = Instantiate(building);
+                    go.transform.position = BuildModeScaffold.transform.position;
+                    lastTile.Building = go;
+                    Destroy(BuildModeScaffold.gameObject);
+                }
+                else
+                {
+                    var movement = produces.GetComponent<CharacterMovement>();
+                    if (movement != null)
+                    {
+                        GridManager.instance.Spawn(produces, new Vector2(Location.X + Location.Y / 2, Location.Y));
+                    }
+
                 }
                 Producing = null;
                 TimeManager.instance.NeedNewOrders(this);

@@ -28,6 +28,7 @@ public class Settler : IGameUnit
                 LeaveAction(_settlementHexArea);
                 foreach (var t in GridManager.instance.GetHexArea(gb.Location, 2))
                     t.InPlayerTerritory = true;
+                gb.Location.Building = gb;
             }
         }
     }
