@@ -73,7 +73,7 @@ public class LevelCreator : MonoBehaviour {
                 {
                     GameObject res = Instantiate(matchingResource.Model);
                     res.transform.position = tilecenter;
-                    tile.StrategicResource = matchingResource;
+                    tile.SetStrategicResource(matchingResource);
                     placedResources[matchingResource]--;
                 }
             }
