@@ -37,7 +37,6 @@ public class TileValueDisplay : MonoBehaviour {
             Destroy(e.gameObject);
         }
         usedElements = new List<Image>();
-
         var resources = tile.GetYield();
         // if there's a strategic resource, display its image
         var strategic = resources.FirstOrDefault(r => r.Key is StrategicResource);
@@ -76,6 +75,5 @@ public class TileValueDisplay : MonoBehaviour {
             picon.transform.SetParent(BasicResourceDisplay, false);
             usedElements.Add(picon);
         }
-
     }
 }

@@ -71,10 +71,13 @@ public class GameManager : MonoBehaviour
     {
         foreach (var t in GridManager.instance.board.Values)
         {
-            if (!tileResourcesDisplayed)
-                t.DisplayTileResources();
-            else
-                t.HideTileResources();
+            if (t.InPlayerTerritory)
+            {
+                if (!tileResourcesDisplayed)
+                    t.DisplayTileResources();
+                else
+                    t.HideTileResources();
+            }
         }
         tileResourcesDisplayed = !tileResourcesDisplayed;
     }

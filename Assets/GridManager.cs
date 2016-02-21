@@ -288,12 +288,12 @@ public class GridManager : MonoBehaviour
                 Tile newSelectedTile;
                 if (board.TryGetValue(new Point((int)coord.x, (int)coord.y), out newSelectedTile))
                 {
-                    if (selectedTile != null && selectedTile != newSelectedTile) selectedTile.Representation.GetComponent<SpriteRenderer>().color = hex_default_color;
-                    selectedTile = newSelectedTile;
-                    selectedTile.Representation.GetComponent<SpriteRenderer>().color = Color.red;
-
                     if (!Village.InBuildMode)
                     {
+                        if (selectedTile != null && selectedTile != newSelectedTile) selectedTile.Representation.GetComponent<SpriteRenderer>().color = hex_default_color;
+                        selectedTile = newSelectedTile;
+                        selectedTile.Representation.GetComponent<SpriteRenderer>().color = Color.red;
+
                         if (Input.GetMouseButton(1))
                         {
                             if (selectedUnit != null) selectedUnit.GetComponent<CharacterMovement>().SuggestMove(coord);
@@ -338,7 +338,7 @@ public class GridManager : MonoBehaviour
                     }
                     else
                     {
-                        Village.BuildModeHoveredTile = selectedTile;
+                        Village.BuildModeHoveredTile = newSelectedTile;
                     }
                 }
                 else

@@ -39,9 +39,6 @@ public class Tile : GridObject, IHasNeighbours<Tile>
 
     public Dictionary<Resource, int> GetYield()
     {
-        if (!InPlayerTerritory)
-            return null;
-
         return Yield;
     }
 
@@ -50,9 +47,6 @@ public class Tile : GridObject, IHasNeighbours<Tile>
     /// </summary>
     public void DisplayTileResources()
     {
-        if (!InPlayerTerritory)
-            return;
-
         if (tileResourceDisplay == null)
         {
             tileResourceDisplay = UnityEngine.Object.Instantiate(GameManager.instance.TileValueDisplayPrefab);
@@ -172,6 +166,6 @@ public class Tile : GridObject, IHasNeighbours<Tile>
     private List<Color> tileColors = new List<Color>()
     {
         new Color(1f, 1f, 1f, 0.3f),
-        new Color(0.7f, 0.3f, 0.4f, 0.3f)
+        new Color(0.7f, 0.4f, 1f, 0.3f)
     };
 }

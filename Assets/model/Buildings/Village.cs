@@ -61,6 +61,13 @@ public class Village : IGameBuilding
             InBuildMode = true;
             BuildModeBuilding = Instantiate(b);
             BuildModeBuildItem = item;
+            // draw the area of this territory tiles
+            var territoryTiles = GridManager.instance.board.Values.Where(t => t.InPlayerTerritory);
+            foreach (var t in territoryTiles)
+            {
+                t.SetLooks(1, Tile.TileColorPresets.Area);
+                t.DisplayTileResources();
+            }
         }
         else
         {
@@ -77,33 +84,65 @@ public class Village : IGameBuilding
         {
             if (lastTile != BuildModeHoveredTile)
             {
-                var adjacencyCheck = GridManager.instance.GetHexArea(BuildModeHoveredTile, BuildModeBuilding.Range);
+                var previouslyDrawnArea = lastTile == null ? new List<Tile>() : GridManager.instance.GetHexArea(lastTile, BuildModeBuilding.Range);
+                var newDrawnArea = GridManager.instance.GetHexArea(BuildModeHoveredTile, BuildModeBuilding.Range);
+                var leftTiles = previouslyDrawnArea.Where(a => !newDrawnArea.Contains(a));
+                var newTiles = newDrawnArea.Where(a => !previouslyDrawnArea.Contains(a));
+
+                // TODO: Add and remove modifiers
+                foreach (var t in leftTiles)
+                {
+                    if (!t.InPlayerTerritory)
+                    {
+                        t.SetLooks(0, Tile.TileColorPresets.WhiteTransparent);
+                        t.HideTileResources();
+                    }
+                }
+                foreach (var t in newTiles)
+                {
+                    t.SetLooks(1, Tile.TileColorPresets.Area);
+                    t.DisplayTileResources();
+                }
+
+                var adjacencyCheck = GridManager.instance.GetHexArea(BuildModeHoveredTile, BuildModeBuilding.Range + 1);
                 bool buildable = adjacencyCheck.Any(a => a.InPlayerTerritory);
                 BuildModeBuilding.SetColor(buildable ? Phase1Building.ColorPresets.Green : Phase1Building.ColorPresets.Red);
+
                 lastTile = BuildModeHoveredTile;
                 BuildModeBuilding.transform.position = GridManager.instance.calcWorldCoord(new Vector2(lastTile.X + lastTile.Y / 2, lastTile.Y));
             }
 
-            if (Input.GetMouseButtonDown(0))
+            if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1))
             {
-                var adjacencyCheck = GridManager.instance.GetHexArea(BuildModeHoveredTile, BuildModeBuilding.Range);
-                bool buildable = adjacencyCheck.Any(a => a.InPlayerTerritory);
-                // if at least one tile in or near the area is already player territory
-                if (buildable)
+                if (Input.GetMouseButtonDown(0))
                 {
-                    Producing = new BuildOrder(BuildModeBuildItem, 0);
-                    BuildModeScaffold = Instantiate(Scaffold);
-                    BuildModeScaffold.transform.position = BuildModeBuilding.transform.position;
-                    Destroy(BuildModeBuilding.gameObject);
-                    BuildModeBuilding = null;
-                    TimeManager.instance.NoMoreOrdersNeeded(this);
+                    var adjacencyCheck = GridManager.instance.GetHexArea(BuildModeHoveredTile, BuildModeBuilding.Range + 1);
+                    bool buildable = adjacencyCheck.Any(a => a.InPlayerTerritory);
+                    // if at least one tile in or near the area is already player territory
+                    if (buildable)
+                    {
+                        Producing = new BuildOrder(BuildModeBuildItem, 0);
+                        BuildModeScaffold = Instantiate(Scaffold);
+                        BuildModeScaffold.transform.position = BuildModeBuilding.transform.position;
+                        TimeManager.instance.NoMoreOrdersNeeded(this);
+                        BuildingPanelUI.instance.SetCurrentlyBuilding();
+                    }
                 }
-            }
-            else if (Input.GetMouseButtonDown(1))
-            {
+
+                // undo area drawing
+                var territoryTiles = GridManager.instance.board.Values.Where(t => t.InPlayerTerritory).ToList();
+                territoryTiles.AddRange(GridManager.instance.GetHexArea(BuildModeHoveredTile, BuildModeBuilding.Range));
+                foreach (var t in territoryTiles)
+                {
+                    t.SetLooks(0, Tile.TileColorPresets.WhiteTransparent);
+                    t.HideTileResources();
+                }
+
                 Destroy(BuildModeBuilding.gameObject);
                 BuildModeBuilding = null;
+                BuildModeHoveredTile = null;
                 InBuildMode = false;
+                lastTile = null;
             }
         }
     }
@@ -159,7 +198,8 @@ public class Village : IGameBuilding
                 {
                     var go = Instantiate(building);
                     go.transform.position = BuildModeScaffold.transform.position;
-                    lastTile.Building = go;
+                    var coord = GridManager.instance.calcGridCoord(go.transform.position);
+                    GridManager.instance.board[new Point((int)coord.x, (int)coord.y)].Building = go;
                     Destroy(BuildModeScaffold.gameObject);
                 }
                 else
